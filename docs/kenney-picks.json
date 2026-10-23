@@ -1,0 +1,44 @@
+{
+	"about": "Kenney models picked for the site, from the dev catalog. Keys are <pack folder>/<model>.",
+	"picks": {
+		"kenney_castle-kit/bridge-straight": {},
+		"kenney_castle-kit/bridge-straight-pillar": {},
+		"kenney_castle-kit/door": {},
+		"kenney_castle-kit/flag": {},
+		"kenney_castle-kit/flag-banner-long": {},
+		"kenney_castle-kit/siege-ram": {},
+		"kenney_castle-kit/siege-tower": {},
+		"kenney_castle-kit/tower-slant-roof": {},
+		"kenney_fantasy-town-kit_2.0/cart": {},
+		"kenney_graveyard-kit_5.0/crypt-small": {},
+		"kenney_graveyard-kit_5.0/hay-bale": {
+			"note": "ground decor"
+		},
+		"kenney_graveyard-kit_5.0/hay-bale-bundled": {
+			"note": "ground decor"
+		},
+		"kenney_graveyard-kit_5.0/pillar-obelisk": {},
+		"kenney_graveyard-kit_5.0/pine-fall": {
+			"note": "orange pine variation"
+		},
+		"kenney_graveyard-kit_5.0/pine-fall-crooked": {
+			"note": "orange pine variation"
+		},
+		"kenney_graveyard-kit_5.0/trunk": {
+			"note": "ground decor"
+		},
+		"kenney_mini-arcade/vending-machine": {},
+		"kenney_mini-arena/column-damaged": {
+			"note": "simply variation"
+		},
+		"kenney_mini-arena/weapon-spear": {
+			"note": "weapon racks"
+		},
+		"kenney_mini-arena/weapon-sword": {
+			"note": "weapon racks"
+		},
+		"kenney_pirate-kit/cannon": {},
+		"kenney_pirate-kit/cannon-ball": {},
+		"kenney_pirate-kit/cannon-mobile": {}
+	}
+}

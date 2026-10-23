@@ -1,0 +1,281 @@
+<!-- A station's content, in the column beside the island. Prerendered, so it reads (and indexes) before
+     the island has loaded, or without JavaScript at all. -->
+<script lang="ts">
+	import { sideNames } from '#lib/content/side-names.ts';
+	import { homeHref, isExternal } from '#lib/content/urls.ts';
+	import { afterNavigate } from '$app/navigation';
+	import type { PageProps } from './$types';
+
+	let { data }: PageProps = $props();
+	const { station: s, site } = $derived(data);
+	const sideName = $derived(sideNames[s.side]);
+
+	let heading: HTMLElement;
+	// Opened from the island or the bubbles: move focus here so the content is read next.
+	afterNavigate(({ type }) => {
+		if (type !== 'enter') heading?.focus({ preventScroll: true });
+	});
+</script>
+
+<svelte:head>
+	<title>{s.title} · {site.name}</title>
+	<meta name="description" content={s.description} />
+	<meta property="og:title" content="{s.title} · {site.name}" />
+	<meta property="og:description" content={s.description} />
+	<meta property="og:type" content="article" />
+	<!-- The station's first image, else the island's own card (og.png); both need site.url. -->
+	{#if site.url}<meta property="og:image" content="{site.url}{s.gallery[0]?.src ?? '/og.png'}" />{/if}
+	<meta name="twitter:card" content={site.url ? 'summary_large_image' : 'summary'} />
+	{#if site.url}<link rel="canonical" href="{site.url}/{s.side}/{s.slug}" />{/if}
+</svelte:head>
+
+<article class="station" aria-labelledby="station-title">
+	<a class="close" href={homeHref()} aria-label="Close">
+		<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+	</a>
+	<p class="kicker">{sideName}{#if s.label}&ensp;·&ensp;{s.label}{/if}</p>
+	<h1 id="station-title" tabindex="-1" bind:this={heading}>{s.title}</h1>
+	{#if s.introHtml}<p class="intro">{@html s.introHtml}</p>{/if}
+
+	{#if s.html}<div class="prose">{@html s.html}</div>{/if}
+
+	{#if s.gallery.length}
+		<ul class="gallery" aria-label="Gallery">
+			{#each s.gallery as image (image.src)}
+				<li>
+					<figure>
+						<img src={image.src} alt={image.alt} loading="lazy" />
+						{#if image.caption}<figcaption>{image.caption}</figcaption>{/if}
+					</figure>
+				</li>
+			{/each}
+		</ul>
+	{/if}
+
+	{#if s.entries.length}
+		<section class="entries" aria-labelledby="entries-title">
+			<h2 id="entries-title">Entries</h2>
+			<ul>
+				{#each s.entries as entry (entry.title)}
+					<li>
+						{#if entry.date}<span class="date">{entry.date}</span>{/if}
+						<span class="what">
+							{#if entry.url}
+								<a href={entry.url} target={isExternal(entry.url) ? '_blank' : undefined} rel={isExternal(entry.url) ? 'noopener' : undefined}
+									>{entry.title}</a
+								>
+							{:else}
+								<strong>{entry.title}</strong>
+							{/if}
+							{#if entry.summary}<span class="summary">{entry.summary}</span>{/if}
+						</span>
+					</li>
+				{/each}
+			</ul>
+		</section>
+	{/if}
+
+	{#each s.stack as group, g (group.title)}
+		<section class="stack" aria-labelledby="stack-{g}">
+			<h2 id="stack-{g}">{group.title}</h2>
+			<ul>
+				{#each group.tags as tag (tag.label)}
+					<li style:--tag={tag.color} style:--tag-ink={tag.text}>
+						{#if tag.icon}<svg viewBox="0 0 24 24" aria-hidden="true"><path d={tag.icon} /></svg>{/if}{tag.label}
+					</li>
+				{/each}
+			</ul>
+		</section>
+	{/each}
+
+	{#if s.links.length}
+		<ul class="links">
+			{#each s.links as link (link.url)}
+				<li>
+					<a href={link.url} target={isExternal(link.url) ? '_blank' : undefined} rel={isExternal(link.url) ? 'noopener' : undefined}>
+						{link.label}{#if isExternal(link.url)}<span aria-hidden="true"> ↗</span><span class="sr">(opens in a new tab)</span>{/if}
+					</a>
+				</li>
+			{/each}
+		</ul>
+	{/if}
+</article>
+
+<style>
+	.station {
+		position: relative;
+		animation: enter 0.35s ease-out;
+	}
+	h1 {
+		margin: 0 44px 14px 0;
+		font: 600 clamp(30px, 3vw, 40px) / 1.1 var(--font-display);
+		outline: none;
+	}
+	/* Longer reading: emphasis in the serif's italic, a touch larger. */
+	.prose {
+		margin-top: 20px;
+		font-size: 16px;
+		line-height: 1.65;
+	}
+	.prose :global(em) {
+		font-family: var(--font-display);
+		font-size: 1.06em;
+	}
+	.prose :global(a) {
+		color: var(--ember-ink);
+	}
+	.prose :global(img) {
+		max-width: 100%;
+		height: auto;
+		border-radius: 8px;
+	}
+	.prose :global(h2),
+	.prose :global(h3) {
+		margin: 1.6em 0 0.5em;
+		font-family: var(--font-display);
+		line-height: 1.2;
+	}
+
+	.gallery {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 10px;
+		margin: 24px 0 0;
+		padding: 0;
+		list-style: none;
+	}
+	.gallery li:first-child {
+		grid-column: 1 / -1;
+	}
+	figure {
+		margin: 0;
+	}
+	figure img {
+		display: block;
+		width: 100%;
+		aspect-ratio: 4 / 3;
+		object-fit: cover;
+		border-radius: 8px;
+		background: var(--line);
+	}
+	figcaption {
+		margin-top: 6px;
+		font-size: 13px;
+		color: var(--muted);
+	}
+
+	/* Skills and tools: small tags in each brand's colour, its logo in front where there is one. */
+	.stack h2 {
+		margin: 26px 0 10px;
+		font: 600 11px/1.2 var(--font-ui);
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: var(--muted);
+	}
+	.stack ul {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	.stack li {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		height: 26px;
+		padding: 0 9px;
+		border-radius: 5px;
+		background: var(--tag);
+		color: var(--tag-ink);
+		font: 500 13px/1 var(--font-ui);
+	}
+	.stack svg {
+		width: 14px;
+		height: 14px;
+		fill: currentColor;
+	}
+
+	.entries h2 {
+		margin: 28px 0 4px;
+		font: 600 11px/1.2 var(--font-ui);
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: var(--muted);
+	}
+	.entries ul {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	.entries li {
+		display: flex;
+		gap: 14px;
+		padding: 12px 0;
+		border-bottom: 1px solid var(--line);
+	}
+	.date {
+		flex: none;
+		width: 3.2em;
+		font-size: 13px;
+		color: var(--muted);
+		padding-top: 2px;
+	}
+	.what {
+		display: flex;
+		flex-direction: column;
+		gap: 3px;
+	}
+	.what a,
+	.what strong {
+		font: 600 16px/1.3 var(--font-display);
+		color: inherit;
+	}
+	.summary {
+		font-size: 14px;
+		line-height: 1.5;
+		color: var(--muted);
+	}
+
+	.links {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		margin: 28px 0 0;
+		padding: 0;
+		list-style: none;
+	}
+	.links a {
+		display: inline-block;
+		padding: 8px 14px;
+		border: 1px solid var(--line);
+		border-radius: 999px;
+		color: inherit;
+		font: 500 14px/1.2 var(--font-ui);
+		text-decoration: none;
+	}
+	.links a:hover {
+		border-color: var(--ember);
+	}
+	.sr {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
+	}
+
+	@keyframes enter {
+		from {
+			opacity: 0;
+			transform: translateY(8px);
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.station {
+			animation: none;
+		}
+	}
+</style>
