@@ -21,13 +21,12 @@
 
 	// ---- Content: Panel 1 -----------------------------------------
 	const bio = {
+		greeting: 'Hi, I am',
 		name: 'Agni',
-		role: 'Designer–Engineer',
-		tagline: 'At junesforge, I design things and build them too.',
+		role: '',
+		tagline: 'I love building stuff using first principles across engineering, tech, society, art, and culture.',
 		historyLines: [
-			'Human psychology, math, materials, intent, stories,',
-			'for me, all are parameters of the same game called design.',
-			"And I'm good at games."
+			'Comp Sci engineer by degree, and artist by design.',
 		],
 		location: 'Bengaluru, India'
 	};
@@ -70,17 +69,6 @@
 		{ label: 'Email', href: 'mailto:agnihotra.bhattacharya@gmail.com', icon: assets.icons.email }
 	];
 
-	const services = [
-		{ id: 'ui', title: 'Product UI', scope: 'Web apps, dashboards, design systems' },
-		{ id: 'brand', title: 'Brand Systems', scope: 'Identity, logos, editorial' },
-		{
-			id: 'frontend',
-			title: 'Front-end Engineering',
-			scope: 'Svelte, SvelteKit, interactive prototypes'
-		},
-		{ id: 'fullstack', title: 'Full-stack Development', scope: 'TypeScript, APIs, game-feel' },
-		{ id: 'editorial', title: 'Content & Editorial', scope: 'Writing, long-form, editing' }
-	];
 
 	// ---- Content: Panel 2 -----------------------------------------
 	const history = [
@@ -208,26 +196,12 @@
 		}
 	];
 
-	// ---- Content: Panel 3 -----------------------------------------
-	const miscSkills = [
-		{
-			title: 'Data Analytics',
-			note: 'I used to be a data scientist. I still use numbers to ask better questions.'
-		},
-		{ title: 'Audio Mixing', note: 'Audacity, DaVinci. Basic sound editing, mixing? No worries.' },
-		{ title: 'Video Editing', note: 'Light cuts, reels, gameplay clips. Nothing cinematic — yet.' },
-		{
-			title: 'AI Generation',
-			note: 'Image and video pipelines. Diffusion, TensorArt, CFG tuning.'
-		},
-		{ title: 'Photography', note: 'I know my way around f-stops, composition, and golden ratios.' },
-		{
-			title: 'Content Writing',
-			note: "I write like I speak. Clear, direct, and sharp enough to hold someone's attention."
-		}
-	];
 
 	import RotatingCube from '#lib/simplified/RotatingCube.svelte';
+	import SkillsPanel from '#lib/components/SkillsPanel.svelte';
+
+	// The skills panel's content (src/content/skills.yaml), shared with the cottage on the island.
+	let { data } = $props();
 	// ---- GSAP entry + quote animations ----------------------------
 	import { onMount } from 'svelte';
 
@@ -382,7 +356,7 @@
 					<img src={assets.logo} alt="Agnifico" class="wordmark-logo face-front" />
 					<img src={assets.logoLight} alt="" class="wordmark-logo face-back" aria-hidden="true" />
 				</button>
-				<div class="wordmark-text">AGNIFICO</div>
+				<!-- <div class="wordmark-text">AGNIFICO</div> -->
 			</section>
 
 			<!-- NUVATRA MAP BANNER -->
@@ -399,7 +373,8 @@
 
 			<!-- BIO BLOCK -->
 			<section class="card bio" aria-label="Bio">
-				<div class="card-tag">◦ BIO</div>
+				<!-- <div class="card-tag">◦ Intro</div> -->
+				<div class="bio-greeting">{bio.greeting}</div>
 				<div class="bio-name">{bio.name}</div>
 				<div class="bio-role">{bio.role}</div>
 				<p class="bio-tagline">{bio.tagline}</p>
@@ -440,7 +415,7 @@
 
 			<!-- ELSEWHERE -->
 			<section class="card elsewhere" aria-label="Elsewhere">
-				<div class="card-tag">◦ ELSEWHERE</div>
+				<div class="card-tag">◦ LINKS</div>
 				<ul class="socials">
 					{#each socials as s}
 						<li>
@@ -454,17 +429,9 @@
 				</ul>
 			</section>
 
-			<!-- SERVICES -->
-			<section class="card services" aria-label="What I do">
-				<div class="card-tag">◦ WHAT I DO</div>
-				<ul class="services-list">
-					{#each services as s}
-						<li class="service-item" id={s.id}>
-							<span class="service-title">{s.title}</span>
-							<span class="service-scope">{s.scope}</span>
-						</li>
-					{/each}
-				</ul>
+			<!-- SKILLS: at a glance, tech stack, miscellaneous -->
+			<section class="card services" aria-label="Skills">
+				<SkillsPanel skills={data.skills} open="glance" />
 			</section>
 
 			<!-- FEATURED -->
@@ -554,19 +521,6 @@
 	<main class="panel panel-3">
 		<div class="panel-3-inner">
 			<div class="panel-3-left">
-				<!-- Miscellaneous skills -->
-				<section class="misc" aria-label="Miscellaneous skills">
-					<div class="card-tag">◦ ELSEWHERE IN THE TOOLBELT</div>
-					<ul class="misc-list">
-						{#each miscSkills as m}
-							<li class="misc-item">
-								<span class="misc-title">{m.title}</span>
-								<span class="misc-note">{m.note}</span>
-							</li>
-						{/each}
-					</ul>
-				</section>
-
 				<!-- Economist quote — GSAP one-shot on entry -->
 				<section class="quote-panel">
 					<div class="quote-line" id="q1a">
@@ -668,6 +622,8 @@
 		--text-dim: #555555;
 
 		--green: #4ade80;
+		/* Second accent, beside the theme's: the names of things that matter (skills, roles, places). */
+		--accent-2: #e9a75b;
 
 		--font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 		--font-mono: 'JetBrains Mono', 'Fira Code', monospace;
@@ -690,6 +646,7 @@
 		--text-dim: #8c846f;
 
 		--green: #2d8f4e; /* darker green so the status dot reads on cream */
+		--accent-2: #8a5c0a;
 
 		/* invert + hue rotate to keep particle relationships sane */
 		--video-filter: invert(1) hue-rotate(180deg) saturate(0.7) brightness(0.95);
@@ -953,22 +910,24 @@
 
 	/* =================================================================
 	   PANEL 1 — BENTO GRID
-	   Rows: wordmark | banner    | banner
-	         bio      | elsewhere | otr
-	         bio      | services  | featured
+	   Rows: wordmark | banner   | banner
+	         bio      | services | otr | elsewhere
+	         bio      | services | featured
+	         bio      | services | featured
 	   ================================================================= */
 	.panel-1 .bento {
 		flex: 1;
 		display: grid;
 		gap: 12px;
 		min-height: 0;
-		grid-template-columns: 220px 1fr 1fr 1fr;
+		/* The open-to-roles row splits two to one with elsewhere (4fr | 2fr). */
+		grid-template-columns: 220px 3fr 4fr 2fr;
 		grid-template-rows: 160px 1fr 1fr 1fr;
 		grid-template-areas:
-			'wordmark banner    banner banner'
-			'bio      services otr otr'
+			'wordmark banner   banner   banner'
+			'bio      services otr      elsewhere'
 			'bio      services featured featured'
-			'bio      elsewhere  featured featured';
+			'bio      services featured featured';
 	}
 	.wordmark {
 		grid-area: wordmark;
@@ -1173,6 +1132,14 @@
 		display: flex;
 		flex-direction: column;
 	}
+	/* Eyebrow over the name: reads on into it, "Hi, I am Agni". */
+	.bio-greeting {
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		color: var(--text-muted);
+		letter-spacing: 0.1em;
+		margin-bottom: 4px;
+	}
 	.bio-name {
 		font-size: 1.75rem;
 		font-weight: 600;
@@ -1294,7 +1261,7 @@
 	}
 	.role-title {
 		font-size: 1rem;
-		color: var(--text);
+		color: var(--accent-2);
 		font-weight: 500;
 		line-height: 1.3;
 	}
@@ -1350,44 +1317,26 @@
 		opacity: 1;
 	}
 
-	/* Services */
+	/* Skills: the shared panel, in this page's type and colours. */
 	.services {
 		display: flex;
 		flex-direction: column;
+		--sk-ink: var(--text);
+		--sk-muted: var(--text-muted);
+		--sk-line: var(--accent-soft);
+		--sk-accent: var(--accent-text);
+		--sk-highlight: var(--accent-2);
+		--sk-label-font: var(--font-mono);
+		--sk-title-font: var(--font-body);
+		--sk-note-font: var(--font-mono);
+		--sk-tag-font: var(--font-body);
+		--sk-tab-size: 0.7rem;
+		--sk-tab-spacing: 0.15em;
+		--sk-title-size: 0.9375rem;
+		--sk-note-size: 0.7rem;
 	}
-	.services-list {
-		list-style: none;
-		padding: 0;
-		margin: 0;
-		display: flex;
-		flex-direction: column;
-		gap: 10px;
+	.services > :global(.skills) {
 		flex: 1;
-		justify-content: space-between;
-	}
-	.service-item {
-		display: flex;
-		flex-direction: column;
-		gap: 2px;
-		padding-left: 12px;
-		border-left: 1px solid var(--accent-soft);
-		transition: border-color 0.2s ease;
-	}
-	.service-item:hover {
-		border-left-color: var(--accent);
-	}
-	.service-title {
-		font-size: 0.9375rem;
-		color: var(--text);
-		font-weight: 500;
-		line-height: 1.25;
-	}
-	.service-scope {
-		font-family: var(--font-mono);
-		font-size: 0.7rem;
-		color: var(--text-muted);
-		letter-spacing: 0.02em;
-		line-height: 1.4;
 	}
 
 	/* Featured */
@@ -1521,7 +1470,7 @@
 	.history-what {
 		font-size: 0.9375rem;
 		font-size: 1rem;
-		color: var(--text);
+		color: var(--accent-2);
 		font-weight: 500;
 		line-height: 1.25;
 	}
@@ -1728,42 +1677,6 @@
 		text-align: center;
 	}
 
-	/* Misc skills card on Panel 3 */
-	.misc {
-		width: 100%;
-		text-align: left;
-	}
-	.misc .card-tag {
-		margin-bottom: 16px;
-	}
-	.misc-list {
-		list-style: none;
-		padding: 0;
-		margin: 0;
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 14px 24px;
-	}
-	.misc-item {
-		display: flex;
-		flex-direction: column;
-		gap: 2px;
-		padding-left: 10px;
-		border-left: 1px solid var(--accent-soft);
-	}
-	.misc-title {
-		font-size: 0.875rem;
-		color: var(--text);
-		font-weight: 500;
-		line-height: 1.3;
-	}
-	.misc-note {
-		font-family: var(--font-mono);
-		font-size: 0.6875rem;
-		color: var(--text-muted);
-		line-height: 1.45;
-	}
-
 	/* Quote panel — old-site structure, GSAP animated */
 	.quote-panel {
 		display: flex;
@@ -1862,10 +1775,11 @@
 	   RESPONSIVE
 	   ================================================================= */
 	@media (max-width: 900px) {
+		/* Still its own scroller: the island's layout keeps html and body from scrolling. */
 		.site {
 			scroll-snap-type: none;
-			height: auto;
-			overflow-y: visible;
+			height: 100vh;
+			height: 100dvh;
 		}
 		.panel {
 			height: auto;
@@ -1902,9 +1816,6 @@
 		.panel-3-inner {
 			grid-template-columns: 1fr;
 			gap: 40px;
-		}
-		.misc-list {
-			grid-template-columns: 1fr;
 		}
 		.project-grid {
 			grid-template-columns: 1fr;

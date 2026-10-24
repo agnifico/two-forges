@@ -10,6 +10,7 @@
 		view,
 		start,
 		secrets,
+		war = true,
 		onpick,
 		children
 	}: {
@@ -17,6 +18,8 @@
 		/** The side to show first (a deep link to the war side starts there). */
 		start: SideId;
 		secrets: SecretTarget[];
+		/** The War Forge has been found, so the island's description may name it. */
+		war?: boolean;
 		onpick: (pick: Pick | null) => void;
 		children?: Snippet;
 	} = $props();
@@ -37,8 +40,8 @@
 <div class="stage">
 	<canvas bind:this={canvas} class:shown={view.shown} aria-hidden="true"></canvas>
 	<p class="sr">
-		A floating island: June's Forge on one side, the War Forge on the other. Interests and hobbies, below, lead to
-		each of its stations.
+		A floating island: June's Forge{#if war} on one side, the War Forge on the other{/if}. Interests and hobbies,
+		below, lead to each of its stations.
 	</p>
 
 	{#if !view.shown}

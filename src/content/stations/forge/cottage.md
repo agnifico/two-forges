@@ -2,13 +2,7 @@
 title: Hello!
 label: About Me
 intro: I am ==Agnihotra Bhattacharya== and I'm a software engineer, an artist, and a designer. Mainly.
-stack:
-  - group: Languages & Frameworks
-    tags: [TypeScript, Svelte, SvelteKit, CSS, HTML]
-  - group: Design Tools
-    tags: [Affinity, Photoshop, Illustrator, Figma, Framer, Canva]
-  - group: Tooling & Platforms
-    tags: [Vercel, Git, Node.js, Claude, Gemini, Tensor.Art, Tiled]
+skills: stack
 links:
   - label: Proton eMail
     url: mailto:agnx13@proton.me

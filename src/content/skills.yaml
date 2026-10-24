@@ -1,0 +1,28 @@
+# The skills panel's three tabs, shown on the cottage (About Me) and on /simplified.
+# A station shows the panel with `skills: <tab>` in its frontmatter, naming the tab it opens on.
+
+# At a glance: what I do, one line each.
+glance:
+  - { title: Product UI, scope: 'Web apps, dashboards, design systems' }
+  - { title: Brand Systems, scope: 'Identity, logos, editorial' }
+  - { title: Front-end Engineering, scope: 'Svelte, SvelteKit, interactive prototypes' }
+  - { title: Full-stack Development, scope: 'TypeScript, APIs, game-feel' }
+  - { title: Content & Editorial, scope: 'Writing, long-form, editing' }
+
+# Tech stack: coloured tags in groups; known names get their brand colour and logo (src/lib/server/tags.ts).
+stack:
+  - group: Languages & Frameworks
+    tags: [TypeScript, Svelte, SvelteKit, CSS, HTML]
+  - group: Design Tools
+    tags: [Affinity, Photoshop, Illustrator, Figma, Framer, Canva]
+  - group: Tooling & Platforms
+    tags: [Vercel, Git, Node.js, Claude, Gemini, Tensor.Art, Tiled]
+
+# Miscellaneous skills: elsewhere in the toolbelt, each with a note.
+misc:
+  - { title: Data Analytics, note: 'I used to be a data scientist. I still use numbers to ask better questions.' }
+  - { title: Audio Mixing, note: 'Audacity, DaVinci. Basic sound editing, mixing? No worries.' }
+  - { title: Video Editing, note: 'Light cuts, reels, gameplay clips. Nothing cinematic — yet.' }
+  - { title: AI Generation, note: 'Image and video pipelines. Diffusion, TensorArt, CFG tuning.' }
+  - { title: Photography, note: 'I know my way around f-stops, composition, and golden ratios.' }
+  - { title: Content Writing, note: "I write like I speak. Clear, direct, and sharp enough to hold someone's attention." }

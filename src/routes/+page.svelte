@@ -26,7 +26,8 @@
 	{#if site.heroRest}<span class="rest">{@html site.heroRest}</span>{/if}
 </h1>
 
-<!-- How to get around (pointer screens only) and the invitation to; at the foot of the column. -->
+<!-- How to get around (pointer screens only) and the way to the plain page; at the foot of the column.
+     The invitation to explore (`invite` in site.md) is in the layout, top-right. -->
 <div class="how">
 	<ul class="mouse" aria-label="Mouse controls">
 		<li>
@@ -42,9 +43,8 @@
 			Scroll to zoom
 		</li>
 	</ul>
-	{#if site.invite}<p class="invite">{@html site.invite}</p>{/if}
 	<!-- Everything on one plain page, for those who'd rather not explore. -->
-	<a class="simple" href="/simplified">Short on time? See the simplified version →</a>
+	<a class="simple" href="/simplified">Simplified version →</a>
 </div>
 
 <style>
@@ -60,6 +60,7 @@
 	.lead {
 		display: block;
 		font-size: clamp(34px, 3.3vw, 54px);
+		padding-top: 4rem;
 		font-weight: 600;
 		line-height: 1.05;
 		letter-spacing: -0.015em;
@@ -82,14 +83,14 @@
 		display: flex;
 		flex-direction: column;
 		align-items: flex-end;
-		gap: 14px;
+		gap: 8px;
 		text-align: right;
 		color: var(--muted);
 	}
 	/* A game-style control legend: one per row, the mouse icons lined up on the right edge. */
 	.mouse {
 		display: flex;
-		flex-direction: column;
+		/* flex-direction: column; */
 		align-items: flex-end;
 		gap: 7px;
 		margin: 0;
@@ -114,11 +115,6 @@
 	.mouse .on {
 		fill: var(--ember);
 		stroke: none;
-	}
-	.invite {
-		max-width: 34ch;
-		margin: 0;
-		font: 14px/1.5 var(--font-text);
 	}
 	.simple {
 		margin-top: -6px;
@@ -183,18 +179,23 @@
 			margin: 6px 0 0;
 			font-size: 22px;
 		}
-		/* Phones: only the way to the simplified page, under the hero. */
+		/*
+		 * Phones: only the way to the simplified page, the last thing on screen: under Interests and
+		 * hobbies, in the room the layout leaves below it (--foot).
+		 */
 		.how {
+			position: fixed;
+			left: 16px;
+			bottom: 10px;
 			align-items: flex-start;
-			margin-top: 12px;
 			text-align: left;
 		}
-		.invite,
 		.mouse {
 			display: none;
 		}
 		.simple {
 			margin-top: 0;
+			font-size: 13px;
 		}
 	}
 </style>

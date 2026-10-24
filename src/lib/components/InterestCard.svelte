@@ -15,7 +15,6 @@
 	<button class="close" onclick={onclose} aria-label="Close">
 		<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
 	</button>
-	<p class="kicker">Interest</p>
 	<h2 id="interest-title" tabindex="-1" bind:this={heading}>{interest.label}</h2>
 	{#if interest.blurb}<p class="intro">{interest.blurb}</p>{/if}
 	<ul>

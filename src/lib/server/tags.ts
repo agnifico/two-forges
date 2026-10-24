@@ -1,5 +1,6 @@
-// Skill tags for a station's `stack`: each known name gets its brand colour and, where Simple Icons
-// (CC0) has one, its logo. Read at build time only; the page gets just the colour and an SVG path.
+// Skill tags for the skills panel's tech stack (src/content/skills.yaml): each known name gets its
+// brand colour and, where Simple Icons (CC0) has one, its logo. Read at build time only; the page gets
+// just the colour and an SVG path.
 // Names not listed here still work, as a plain tag in a neutral colour.
 
 import * as icons from 'simple-icons';

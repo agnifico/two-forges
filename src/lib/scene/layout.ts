@@ -138,6 +138,7 @@ export const layout: Layout = {
 		{ kind: 'lamp-post', at: [-2.22, -5.58], rotationDeg: 115.28 },
 		{ kind: 'leaf-clump', at: [4.4, -17.89], rotationDeg: 0 },
 		{ kind: 'stump', at: [13.7, -19.12], rotationDeg: 0 },
-		{ kind: 'bench', at: [-1.71, -9.41], rotationDeg: -51.74 }
+		{ kind: 'bench', at: [-1.71, -9.41], rotationDeg: -51.74 },
+		{ kind: 'lantern', at: [-1.96, 18.86], rotationDeg: 0 }
 	]
 };

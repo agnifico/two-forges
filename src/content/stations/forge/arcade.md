@@ -7,4 +7,6 @@ entries:
     summary: A role-playing game, built solo.
     url: https://firefightergirl.vercel.app/
 ---
-*Placeholder.* A list of games that changed how I think, and why.
+UX/UI, software dev, psychology, math, materials, revenue and profitability, intent, physics, cooking, stories, wars and revolutions.
+For me, all of them are simply games with different win/loss conditions.
+==And I'm good at understanding games.==

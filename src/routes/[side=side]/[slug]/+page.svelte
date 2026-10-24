@@ -1,14 +1,13 @@
 <!-- A station's content, in the column beside the island. Prerendered, so it reads (and indexes) before
      the island has loaded, or without JavaScript at all. -->
 <script lang="ts">
-	import { sideNames } from '#lib/content/side-names.ts';
 	import { homeHref, isExternal } from '#lib/content/urls.ts';
 	import { afterNavigate } from '$app/navigation';
+	import SkillsPanel from '#lib/components/SkillsPanel.svelte';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
-	const { station: s, site } = $derived(data);
-	const sideName = $derived(sideNames[s.side]);
+	const { station: s, site, skills } = $derived(data);
 
 	let heading: HTMLElement;
 	// Opened from the island or the bubbles: move focus here so the content is read next.
@@ -33,7 +32,7 @@
 	<a class="close" href={homeHref()} aria-label="Close">
 		<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
 	</a>
-	<p class="kicker">{sideName}{#if s.label}&ensp;·&ensp;{s.label}{/if}</p>
+	<!-- No eyebrow: the side shows beside Interests and hobbies, and the label (still in the content) in the interest card's list. -->
 	<h1 id="station-title" tabindex="-1" bind:this={heading}>{s.title}</h1>
 	{#if s.introHtml}<p class="intro">{@html s.introHtml}</p>{/if}
 
@@ -75,18 +74,9 @@
 		</section>
 	{/if}
 
-	{#each s.stack as group, g (group.title)}
-		<section class="stack" aria-labelledby="stack-{g}">
-			<h2 id="stack-{g}">{group.title}</h2>
-			<ul>
-				{#each group.tags as tag (tag.label)}
-					<li style:--tag={tag.color} style:--tag-ink={tag.text}>
-						{#if tag.icon}<svg viewBox="0 0 24 24" aria-hidden="true"><path d={tag.icon} /></svg>{/if}{tag.label}
-					</li>
-				{/each}
-			</ul>
-		</section>
-	{/each}
+	{#if skills && s.skills}
+		<div class="skills"><SkillsPanel {skills} open={s.skills} /></div>
+	{/if}
 
 	{#if s.links.length}
 		<ul class="links">
@@ -164,37 +154,8 @@
 		color: var(--muted);
 	}
 
-	/* Skills and tools: small tags in each brand's colour, its logo in front where there is one. */
-	.stack h2 {
-		margin: 26px 0 10px;
-		font: 600 11px/1.2 var(--font-ui);
-		letter-spacing: 0.12em;
-		text-transform: uppercase;
-		color: var(--muted);
-	}
-	.stack ul {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 6px;
-		margin: 0;
-		padding: 0;
-		list-style: none;
-	}
-	.stack li {
-		display: inline-flex;
-		align-items: center;
-		gap: 6px;
-		height: 26px;
-		padding: 0 9px;
-		border-radius: 5px;
-		background: var(--tag);
-		color: var(--tag-ink);
-		font: 500 13px/1 var(--font-ui);
-	}
-	.stack svg {
-		width: 14px;
-		height: 14px;
-		fill: currentColor;
+	.skills {
+		margin-top: 26px;
 	}
 
 	.entries h2 {

@@ -8,6 +8,8 @@ Everything the site says lives here. It's read at build time (`src/lib/server/co
 - `interests.yaml`: the "Interests and hobbies" bubbles, in order, each linked to its stations.
 - `stations/<side>/<station>.md`: one file per station. The file name is the URL:
   `stations/forge/drafting-desk.md` is `/forge/drafting-desk` (station `draftingDesk`).
+- `skills.yaml`: the skills panel's three tabs (at a glance, tech stack, miscellaneous skills), shown on
+  the cottage and on /simplified.
 - `secrets/<side>/<name>.md`: short notes hidden in decor pieces. They have no page of their own.
 
 Images go in `static/content/...` and are referenced from the site root (`/content/furnace/01.jpg`).
@@ -23,9 +25,8 @@ gallery:                        # the first image is wide, the rest in pairs
   - { src: /content/furnace/01.jpg, alt: What it shows, caption: Optional }
 entries:                        # a list of works or write-ups
   - { title: Propsize, date: '2025', url: https://…, summary: One line }
-stack:                          # skills and tools as coloured tags, in groups; known names
-  - group: Design Tools         # get their brand colour and logo (src/lib/server/tags.ts)
-    tags: [Figma, Framer]
+skills: stack                   # shows the skills panel (skills.yaml), open on this tab:
+                                # glance, stack or misc
 links:                          # buttons at the end; off-site links open in a new tab
   - { label: GitHub, url: https://github.com/… }
 ```

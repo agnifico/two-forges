@@ -38,6 +38,17 @@ export interface TagGroup {
 	tags: Tag[];
 }
 
+/** The skills panel's tabs, in order. */
+export const skillsTabs = ['glance', 'stack', 'misc'] as const;
+export type SkillsTab = (typeof skillsTabs)[number];
+
+/** The skills panel (src/content/skills.yaml): what I do, my tech stack, and the rest of the toolbelt. */
+export interface Skills {
+	glance: { title: string; scope: string }[];
+	stack: TagGroup[];
+	misc: { title: string; note: string }[];
+}
+
 export interface Site {
 	name: string;
 	author: string;
@@ -77,8 +88,8 @@ export interface StationContent extends StationSummary {
 	html: string;
 	gallery: GalleryImage[];
 	entries: Entry[];
-	/** Skills and tools, grouped. */
-	stack: TagGroup[];
+	/** Shows the skills panel, opened on this tab. */
+	skills?: SkillsTab;
 	links: Link[];
 }
 

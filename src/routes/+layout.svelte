@@ -1,6 +1,6 @@
 <!--
   The whole site is one screen. On desktop the island fills it, with the wordmark and hero over its
-  top-left; whatever opens comes in as a card on the right (the island is framed clear of it). On phones the island fills the screen with the hero over its foot, and what opens
+  top-left; whatever opens comes in as a card on the right (the island is framed clear of it). On phones the island fills the screen with the wordmark top-left and the hero over its foot, and what opens
   comes up as a sheet from the bottom. The island stays mounted across pages; the URL says what's open
   (`/forge/furnace`), and the island follows: it flips if needed and frames the station.
 -->
@@ -30,7 +30,9 @@
 	/** Phones: the layout below this width (keep in step with the media query in the styles). */
 	const PHONE = '(max-width: 760px)';
 	/** Phones: the content sheet's height, as a share of the screen (also the island's lift). */
-	const SHEET = 0.52;
+	const SHEET = 0.49;
+	/** Remembers, per browser, that the visitor has found the War Forge. */
+	const WAR_KEY = 'agnifico:war-found';
 	/** Phones, nothing open: how far the island sits above centre, clear of the hero. */
 	const HOME_LIFT = 0.14;
 	/** Desktop, with a card open: how much of its width the island is framed clear of (it may tuck under the rest). */
@@ -70,11 +72,41 @@
 	/** /simplified is a page of its own (the JunesForge bento site): no island, no shell, no music. */
 	const bare = $derived(page.route.id?.startsWith('/simplified') ?? false);
 	$effect(() => music.allow(!bare));
-	/** The home page with nothing open: on desktop, no card, just the scene with the hero over it. */
-	const home = $derived(!open && !chosen && page.route.id === '/');
+	/** The home page (or /all, the same page) with nothing open: on desktop, no card, just the scene with the hero over it. */
+	const home = $derived(!open && !chosen && (page.route.id === '/' || page.route.id === '/all'));
+
+	/**
+	 * The War Forge stays out of sight (no bubbles, no mention) until the visitor finds it: by flipping,
+	 * through the signpost, by a link to one of its stations, or by coming in through /all. Once found,
+	 * it's remembered in this browser and its interests join the bubbles as a bonus.
+	 */
+	let warFound = $state(false);
+	onMount(() => {
+		try {
+			warFound ||= localStorage.getItem(WAR_KEY) === '1';
+		} catch {
+			// Storage blocked: found again each visit.
+		}
+	});
+	$effect(() => {
+		if (warFound || (view.side !== 'war' && page.route.id !== '/all')) return;
+		warFound = true;
+		try {
+			localStorage.setItem(WAR_KEY, '1');
+		} catch {
+			// Storage blocked: found for this visit only.
+		}
+	});
+	const sideOf = (interest: Interest) => byStation(interest.stations[0])?.side;
+	const shownInterests = $derived(warFound ? data.interests : data.interests.filter((i) => sideOf(i) !== 'war'));
 	/** Phones: content is open, so the column is up as a sheet. */
 	const sheet = $derived(phone && !!(open || chosen));
 	const lit = $derived(open ? [open.station] : chosenStations.map((s) => s.station));
+	/** A station has been opened this visit: the invitation top-right has done its job. */
+	let explored = $state(false);
+	$effect(() => {
+		if (open) explored = true;
+	});
 
 	// The island follows what's open.
 	$effect(() => {
@@ -232,9 +264,12 @@
 </script>
 
 <svelte:head>
-	<!-- The mark follows the browser's light or dark look; Safari and home screens get the red tile. -->
+	<!--
+	  The tab icon is the mark alone, following the browser's light or dark look. No PNG icon beside it:
+	  browsers prefer a sized PNG and swap to it after load. The red tile is only for home screens
+	  (static/favicon-32.png is kept as a spare, unused).
+	-->
 	<link rel="icon" href={favicon} type="image/svg+xml" />
-	<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
 	<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 	<meta name="author" content={data.site.author} />
 	<meta property="og:site_name" content={data.site.name} />
@@ -255,7 +290,7 @@
 		style:--controls-h="{controlsHeight}px"
 		style:--sheet-share={SHEET}
 	>
-		<SceneCanvas {view} start={open?.side ?? 'forge'} secrets={data.secrets} onpick={onPick}>
+		<SceneCanvas {view} start={open?.side ?? 'forge'} secrets={data.secrets} war={warFound} onpick={onPick}>
 			<Pins {view} show={introPins || interestsOpen} {lit} />
 			{#if secret}
 				{#key secret.id}
@@ -264,21 +299,29 @@
 			{/if}
 			<Controls
 				{view}
-				interests={data.interests}
+				interests={shownInterests}
 				stations={data.stations}
 				{active}
 				bind:open={interestsOpen}
 				bind:height={controlsHeight}
 				{hint}
+				compact={phone}
 				onchoose={chooseInterest}
 				onflip={flip}
 			/>
 		</SceneCanvas>
 
+		<!-- Pinned top-left over the island, whatever is open (outside the column, which moves as a card or sheet). -->
+		<header>
+			<a class="wordmark" href={homeHref()}><Logo /><span class="name">{data.site.name}</span></a>
+		</header>
+
+		<!-- Desktop, at home: the invitation (`invite` in site.md) under the corner icons, until the first station opens. -->
+		{#if home && !explored && data.site.invite}
+			<p class="invite">{@html data.site.invite}</p>
+		{/if}
+
 		<div class="column" bind:this={column} bind:clientWidth={columnWidth}>
-			<header>
-				<a class="wordmark" href={homeHref()}><Logo />{data.site.name}</a>
-			</header>
 			<main class:home={!open && !chosen}>
 				{#if chosen && !open}
 					{#key chosen.id}
@@ -323,6 +366,9 @@
 		--ember: #e8893f;
 		--ember-ink: #b85c1c;
 		--mark: color-mix(in srgb, var(--ember) 38%, transparent);
+		/* The War Forge's bonus bubbles: the empire's red. */
+		--bonus: #b3343f;
+		--bonus-ink: #93262f;
 
 		position: fixed;
 		inset: 0;
@@ -342,6 +388,8 @@
 		--ember: #f2a25c;
 		--ember-ink: #ffbe82;
 		--mark: color-mix(in srgb, var(--ember) 62%, transparent);
+		--bonus: #ff7a86;
+		--bonus-ink: #ffb3ba;
 	}
 
 	.column {
@@ -351,8 +399,10 @@
 		overflow-y: auto;
 		padding: 28px clamp(20px, 3vw, 44px) 24px 8px;
 	}
+	/* Top-left over the island on every screen, on its own pill (so no halo). */
 	header {
-		margin-bottom: 24px;
+		position: absolute;
+		z-index: 2;
 	}
 	.wordmark {
 		display: inline-flex;
@@ -361,7 +411,24 @@
 		font: 600 22px/1 var(--font-display);
 		letter-spacing: 0.01em;
 		color: inherit;
+		color: white;
 		text-decoration: none;
+		background-color: hsla(0, 0%, 16%, 0.33);
+		padding: 8px 16px;
+		border-radius: calc(100vw - 100%);
+	}
+	/* Top-right, right-aligned under the corner icons (38px tall, 18px down, 28px in; see Controls). */
+	.invite {
+		position: absolute;
+		top: 68px;
+		right: 28px;
+		z-index: 2;
+		max-width: 34ch;
+		margin: 0;
+		color: var(--muted);
+		font: 14px/1.5 var(--font-text);
+		text-align: right;
+		pointer-events: none;
 	}
 	main {
 		flex: 1;
@@ -384,13 +451,8 @@
 			mask-image: none;
 		}
 		header {
-			position: absolute;
 			top: 26px;
 			left: 32px;
-			z-index: 1;
-			margin: 0;
-			pointer-events: auto;
-			text-shadow: 0 0 2px var(--sky), 0 0 10px var(--sky);
 		}
 		.wordmark {
 			font-size: 26px;
@@ -406,7 +468,6 @@
 			padding: 26px 28px 28px;
 			border: 1px solid var(--line);
 			border-radius: 18px;
-			/* No blur or transform here: either would make the card the box the wordmark is placed in. */
 			background: color-mix(in srgb, var(--paper) 97%, transparent);
 			box-shadow: 0 12px 40px rgba(40, 25, 10, 0.16);
 			animation: card-in 0.3s ease-out;
@@ -434,7 +495,7 @@
 		}
 	}
 
-	/* Shared by the station article, the interest card and the hero. */
+	/* The 404's eyebrow (stations and interests no longer show one; their labels stay in the content). */
 	.column :global(.kicker) {
 		margin: 0 0 8px;
 		font: 600 11px/1.2 var(--font-ui);
@@ -508,6 +569,10 @@
 		.shell.sheet {
 			--sheet: calc(var(--sheet-share) * 100svh);
 		}
+		/* At home the controls ride a little higher, leaving a line below for the simplified link. */
+		.shell.home {
+			--foot: 30px;
+		}
 		.column {
 			position: absolute;
 			left: 0;
@@ -515,7 +580,7 @@
 			bottom: 0;
 			z-index: 1;
 			overflow: hidden;
-			padding: 30vh 20px calc(var(--controls-h) + 52px);
+			padding: 30vh 20px calc(var(--controls-h) + var(--foot, 0px) + 52px);
 			background: linear-gradient(
 				to bottom,
 				transparent,
@@ -525,7 +590,7 @@
 			pointer-events: none;
 			transition: padding-bottom 0.3s ease-out;
 		}
-		.column a,
+		.column :global(a),
 		.column :global(button) {
 			pointer-events: auto;
 		}
@@ -542,19 +607,35 @@
 			transition: none;
 			animation: rise 0.35s ease-out;
 		}
+		/* Phones: level with the corner icons (38px tall, 14px down), whether or not the sheet is up. */
 		header {
-			margin-bottom: 14px;
+			top: 14px;
+			left: 16px;
+			display: flex;
+			align-items: center;
+			height: 38px;
 		}
-		.shell:not(.sheet) header {
-			margin-bottom: 10px;
+		.wordmark {
+			font-size: 20px;
 		}
-		.shell:not(.sheet) .wordmark {
-			font-size: 18px;
-			color: var(--muted);
+		/* No room for the invitation on phones: the corner icons and the island fill the top. */
+		.invite {
+			display: none;
 		}
 		main.home {
 			justify-content: flex-start;
 			padding-bottom: 0;
+		}
+	}
+	/* The narrowest phones: just the mark, or the name runs into the corner icons (still read out). */
+	@media (max-width: 359px) {
+		.wordmark .name {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			overflow: hidden;
+			clip-path: inset(50%);
+			white-space: nowrap;
 		}
 	}
 	@keyframes rise {

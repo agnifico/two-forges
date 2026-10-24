@@ -6,7 +6,7 @@ import { marked } from 'marked';
 import { parse as parseYaml } from 'yaml';
 import { slots, type StationId } from '../scene/config';
 import { sides, type SideId } from '../scene/sides';
-import type { Entry, GalleryImage, Interest, Link, Secret, Site, StationContent, StationSummary, TagGroup } from '../content/types';
+import { skillsTabs, type Entry, type GalleryImage, type Interest, type Link, type Secret, type Site, type Skills, type SkillsTab, type StationContent, type StationSummary, type TagGroup } from '../content/types';
 import { slugStation } from '../content/urls';
 import { tag } from './tags';
 
@@ -18,6 +18,7 @@ const interestsFile = raw(
 const stationFiles = raw(
 	import.meta.glob('/src/content/stations/*/*.md', { query: '?raw', import: 'default', eager: true })
 );
+const skillsFile = raw(import.meta.glob('/src/content/skills.yaml', { query: '?raw', import: 'default', eager: true }));
 const secretFiles = raw(import.meta.glob('/src/content/secrets/*/*.md', { query: '?raw', import: 'default', eager: true }));
 
 const stationIds = new Set<string>(slots.map((s) => s.id));
@@ -107,6 +108,27 @@ function checkSide(file: string, side: string): SideId {
 	return side as SideId;
 }
 
+function skillsTab(file: string, data: Record<string, unknown>): SkillsTab | undefined {
+	const tab = text(file, data, 'skills');
+	if (!tab) return undefined;
+	if (!(skillsTabs as readonly string[]).includes(tab)) fail(file, `"skills" must name a tab (${skillsTabs.join(', ')})`);
+	return tab as SkillsTab;
+}
+
+function readSkills(): Skills {
+	const file = 'src/content/skills.yaml';
+	const data = parseYaml(Object.values(skillsFile)[0] ?? fail(file, 'missing')) ?? {};
+	if (typeof data !== 'object' || Array.isArray(data)) fail(file, 'must be key: value pairs');
+	return {
+		glance: list(file, data, 'glance', (g) => ({ title: text(file, g, 'title', true), scope: text(file, g, 'scope') })),
+		stack: list(file, data, 'stack', (g): TagGroup => {
+			if (!Array.isArray(g.tags)) fail(file, '"stack" groups need a "tags" list');
+			return { title: text(file, g, 'group', true), tags: g.tags.map((t) => tag(String(t))) };
+		}),
+		misc: list(file, data, 'misc', (m) => ({ title: text(file, m, 'title', true), note: text(file, m, 'note') }))
+	};
+}
+
 function readStation(path: string): StationContent {
 	const file = path.slice(1);
 	const { side: folder, slug } = parsePath(path);
@@ -136,15 +158,12 @@ function readStation(path: string): StationContent {
 			url: text(file, e, 'url') || undefined,
 			summary: text(file, e, 'summary') || undefined
 		})),
-		stack: list(file, data, 'stack', (g): TagGroup => {
-			if (!Array.isArray(g.tags)) fail(file, '"stack" groups need a "tags" list');
-			return { title: text(file, g, 'group', true), tags: g.tags.map((t) => tag(String(t))) };
-		}),
+		skills: skillsTab(file, data),
 		links: links(file, data)
 	};
 }
 
-let cache: { site: Site; interests: Interest[]; stations: StationContent[]; secrets: Secret[] } | undefined;
+let cache: { site: Site; interests: Interest[]; stations: StationContent[]; secrets: Secret[]; skills: Skills } | undefined;
 
 /** Everything in src/content, parsed and checked once per build. */
 function load() {
@@ -207,7 +226,7 @@ function load() {
 		};
 	});
 
-	cache = { site, interests, stations, secrets };
+	cache = { site, interests, stations, secrets, skills: readSkills() };
 	return cache;
 }
 
@@ -227,6 +246,11 @@ export function loadShared() {
 
 export function loadStation(side: string, slug: string): StationContent | undefined {
 	return load().stations.find((s) => s.side === side && s.slug === slug);
+}
+
+/** The skills panel, for the stations that show it and /simplified. */
+export function loadSkills(): Skills {
+	return load().skills;
 }
 
 export function stationEntries() {

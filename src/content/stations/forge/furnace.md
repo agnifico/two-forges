@@ -12,4 +12,4 @@ links:
   - label: JunesForge
     url: https://junesforge.com
 ---
-*Placeholder.* A short note on how I like to make things: from first principles, by hand where it matters, and never quite finished.
+
