@@ -21,6 +21,8 @@ export class IslandView {
 	interaction = $state.raw<Interaction>();
 	/** The first side is in and the canvas has faded up. */
 	shown = $state(false);
+	/** Held still behind the home page's front door (no idle flight) until the visitor enters. */
+	held = $state(false);
 	/** Model loading, 0 to 1. */
 	progress = $state(0);
 	side = $state<SideId>('forge');
@@ -76,7 +78,7 @@ export class IslandView {
 			handles.rig.setInset(this.#inset, true);
 			this.interaction = createInteraction(handles, secrets, onPick);
 			this.#focus = createFocus(handles.rig);
-			this.#tour = createTour(handles.rig, () => this.shown && !this.#want && !this.#flip);
+			this.#tour = createTour(handles.rig, () => this.shown && !this.held && !this.#want && !this.#flip);
 			this.shown = true;
 			if (this.#want) this.#apply(true);
 			else this.#focus.intro();

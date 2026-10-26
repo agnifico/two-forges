@@ -1,8 +1,6 @@
 ---
 title: Hello!
-label: About Me
 intro: I am ==Agnihotra Bhattacharya== and I'm a software engineer, an artist, and a designer. Mainly.
-skills: stack
 links:
   - label: Proton eMail
     url: mailto:agnx13@proton.me

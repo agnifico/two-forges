@@ -1,6 +1,7 @@
 <!--
-  The whole site is one screen. On desktop the island fills it, with the wordmark and hero over its
-  top-left; whatever opens comes in as a card on the right (the island is framed clear of it). On phones the island fills the screen with the wordmark top-left and the hero over its foot, and what opens
+  The whole site is one screen. On desktop the island fills it, with the wordmark and title over its
+  top-left (a fresh load of the home page first stops at a front door: the title, a sound toggle and,
+  once the island is in, an Enter button); whatever opens comes in as a card on the right (the island is framed clear of it). On phones the island fills the screen with the wordmark top-left and the hero over its foot, and what opens
   comes up as a sheet from the bottom. The island stays mounted across pages; the URL says what's open
   (`/forge/furnace`), and the island follows: it flips if needed and frames the station.
 -->
@@ -10,6 +11,7 @@
 	import Logo from '#lib/components/Logo.svelte';
 	import { music } from '#lib/components/music.svelte.ts';
 	import InterestCard from '#lib/components/InterestCard.svelte';
+	import Invite from '#lib/components/Invite.svelte';
 	import { IslandView } from '#lib/components/island-view.svelte.ts';
 	import Pins from '#lib/components/Pins.svelte';
 	import SceneCanvas from '#lib/components/SceneCanvas.svelte';
@@ -20,27 +22,59 @@
 	import type { Pick } from '#lib/scene/interaction.ts';
 	import { afterNavigate, goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { onMount, untrack } from 'svelte';
+	import { onMount, setContext, tick, untrack } from 'svelte';
+	import { fade } from 'svelte/transition';
 	import type { LayoutProps } from './$types';
 
 	/** How long the pins show after the island first appears. */
 	const INTRO_PINS_MS = 5000;
-	const HINT_MS = 9000;
-	const HINT_KEY = 'agnifico:hint-seen';
 	/** Phones: the layout below this width (keep in step with the media query in the styles). */
 	const PHONE = '(max-width: 760px)';
 	/** Phones: the content sheet's height, as a share of the screen (also the island's lift). */
 	const SHEET = 0.49;
 	/** Remembers, per browser, that the visitor has found the War Forge. */
 	const WAR_KEY = 'agnifico:war-found';
+	/** Remembers, per browser, which secrets the visitor has found. */
+	const FOUND_KEY = 'agnifico:secrets-found';
 	/** Phones, nothing open: how far the island sits above centre, clear of the hero. */
 	const HOME_LIFT = 0.14;
 	/** Desktop, with a card open: how much of its width the island is framed clear of (it may tuck under the rest). */
 	const CARD_INSET = 0.7;
+	/** Desktop, at home: how far right of centre the island sits (twice its share of the width), clear of the title. */
+	const HOME_SHIFT = 0.08;
+	/** Desktop, at home: how far below centre the island sits (share of the half-height), so the cottage clears the top. */
+	const HOME_DROP = 0.22;
 
 	let { data, children }: LayoutProps = $props();
 
 	const view = new IslandView();
+
+	/**
+	 * The front door: a fresh load of the home page waits behind the title for the visitor to enter
+	 * (deep links go straight in). Until then the island holds still and the controls stay away.
+	 */
+	let entered = $state(page.route.id !== '/');
+	view.held = page.route.id === '/';
+	setContext('entered', () => entered);
+	let title = $state<HTMLElement>();
+	/** In: the title glides from the door to its place under the wordmark; sound starts with this click. */
+	async function enter() {
+		const first = title?.getBoundingClientRect();
+		entered = true;
+		view.held = false;
+		await tick();
+		const last = title?.getBoundingClientRect();
+		if (!title || !first || !last || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+		title.animate(
+			[
+				{ transform: `translate(${first.left - last.left}px, ${first.top - last.top}px) scale(${first.width / last.width})` },
+				{ transform: 'none' }
+			],
+			{ duration: 750, easing: 'cubic-bezier(0.2, 0.7, 0.2, 1)' }
+		);
+	}
+	/** The Enter button takes focus as it appears, so Enter or Space goes in. */
+	const focusIt = (node: HTMLElement) => node.focus({ preventScroll: true });
 	const byStation = (id: StationId) => data.stations.find((s) => s.station === id);
 
 	/** The open station (on a station page). */
@@ -49,8 +83,9 @@
 	let chosen = $state<Interest | null>(null);
 	let secretId = $state<string | null>(null);
 	let interestsOpen = $state(false);
+	/** Phones: the corner's open, its icons dropping down the right edge (it starts open for a few seconds). */
+	let cornerOpen = $state(true);
 	let introPins = $state(false);
-	let hint = $state(false);
 	let phone = $state(false);
 	let controlsHeight = $state(0);
 	let columnWidth = $state(0);
@@ -102,11 +137,31 @@
 	/** Phones: content is open, so the column is up as a sheet. */
 	const sheet = $derived(phone && !!(open || chosen));
 	const lit = $derived(open ? [open.station] : chosenStations.map((s) => s.station));
-	/** A station has been opened this visit: the invitation top-right has done its job. */
-	let explored = $state(false);
+	/** The cottage's invitation is up: every visit, until the first click anywhere or something opens. */
+	let inviting = $state(true);
 	$effect(() => {
-		if (open) explored = true;
+		if (open || chosen) inviting = false;
 	});
+
+	/** Secrets found in this browser, counted under Interests and hobbies once there's one. */
+	let found = $state<string[]>([]);
+	onMount(() => {
+		try {
+			const ids: unknown = JSON.parse(localStorage.getItem(FOUND_KEY) ?? '[]');
+			if (Array.isArray(ids)) found = data.secrets.map((s) => s.id).filter((id) => ids.includes(id));
+		} catch {
+			// Storage blocked: counted for this visit only.
+		}
+	});
+	const findSecret = (id: string) => {
+		if (found.includes(id)) return;
+		found = [...found, id];
+		try {
+			localStorage.setItem(FOUND_KEY, JSON.stringify(found));
+		} catch {
+			// Storage blocked: counted for this visit only.
+		}
+	};
 
 	// The island follows what's open.
 	$effect(() => {
@@ -129,15 +184,20 @@
 		const was = heard;
 		heard = now;
 		untrack(() => {
-			if (now) music.play(now === 'furnace' ? 'anvil' : 'page');
+			if (now) music.play(now === 'furnace' || now === 'workbench' ? 'anvil' : 'page');
 			else if (was && !hush) music.play('close');
 		});
 	});
 
-	// Phones: keep the island clear of the hero, or of the sheet while it's up.
-	$effect(() => view.setLift(!phone ? 0 : sheet ? SHEET : HOME_LIFT));
-	// Desktop: the island is centred on the screen; with a card open it slides left, clear of it.
-	$effect(() => view.setInset(phone || home ? 0 : Math.round(columnWidth * CARD_INSET)));
+	// Phones: keep the island clear of the title, or of the sheet while it's up. Desktop, at home: a
+	// little low, so the cottage clears the top.
+	$effect(() => view.setLift(!phone ? (home ? -HOME_DROP : 0) : sheet ? SHEET : HOME_LIFT));
+	// Desktop: at home the island sits a little right of centre, clear of the title; with a card open
+	// it slides left, clear of the card.
+	let innerWidth = $state(0);
+	$effect(() =>
+		view.setInset(phone ? 0 : home ? -Math.round(innerWidth * HOME_SHIFT) : Math.round(columnWidth * CARD_INSET))
+	);
 
 	onMount(() => {
 		const query = matchMedia(PHONE);
@@ -153,26 +213,12 @@
 		if (open) untrack(() => (interestsOpen ||= !phone));
 	});
 
-	// First impressions: pins for a few seconds, and on a first visit a hint about what's clickable.
+	// First impressions: pins for a few seconds, once in.
 	$effect(() => {
-		if (!view.shown) return;
-		untrack(() => {
-			introPins = true;
-			let seen = true;
-			try {
-				seen = localStorage.getItem(HINT_KEY) === '1';
-				localStorage.setItem(HINT_KEY, '1');
-			} catch {
-				// Storage blocked: skip the hint.
-			}
-			hint = !seen && !open;
-		});
+		if (!view.shown || !entered) return;
+		untrack(() => (introPins = true));
 		const pins = setTimeout(() => (introPins = false), INTRO_PINS_MS);
-		const hintTimer = setTimeout(() => (hint = false), HINT_MS);
-		return () => {
-			clearTimeout(pins);
-			clearTimeout(hintTimer);
-		};
+		return () => clearTimeout(pins);
 	});
 
 	const rememberFocus = () => {
@@ -190,7 +236,6 @@
 	};
 
 	const onPick = (pick: Pick | null) => {
-		hint = false;
 		if (!pick) {
 			if (secretId) secretId = null;
 			else if (open) close();
@@ -200,6 +245,7 @@
 		returnTo = null;
 		if (pick.type === 'secret') {
 			secretId = pick.id;
+			findSecret(pick.id);
 			music.play('secret');
 			return;
 		}
@@ -209,7 +255,6 @@
 	};
 
 	const chooseInterest = (interest: Interest) => {
-		hint = false;
 		rememberFocus();
 		if (active.includes(interest.id)) {
 			chosen = null;
@@ -226,6 +271,12 @@
 		}
 	};
 
+	/**
+	 * The flip button only shows where the War Forge is already in play: /all, a link to one of its
+	 * stations, or with that side up (so there's a way back). Otherwise F and the signpost find it.
+	 */
+	const flippable = $derived(page.route.id === '/all' || open?.side === 'war' || view.side === 'war');
+
 	const flip = async () => {
 		if (!view.canFlip || view.flipping) return;
 		hush = true;
@@ -237,7 +288,7 @@
 	};
 
 	const onKey = (e: KeyboardEvent) => {
-		if (e.defaultPrevented || bare) return;
+		if (e.defaultPrevented || bare || !entered) return;
 		if (e.key === 'Escape') {
 			if (secretId) secretId = null;
 			else if (open) close();
@@ -275,7 +326,8 @@
 	<meta property="og:site_name" content={data.site.name} />
 </svelte:head>
 
-<svelte:window onkeydown={onKey} />
+<!-- The click on Enter doesn't count: the invitation comes up just after it. -->
+<svelte:window bind:innerWidth onkeydown={onKey} onpointerdown={() => entered && (inviting = false)} />
 
 {#if bare}
 	<!-- /simplified: the old JunesForge bento page, on its own, without the island. -->
@@ -290,25 +342,34 @@
 		style:--controls-h="{controlsHeight}px"
 		style:--sheet-share={SHEET}
 	>
-		<SceneCanvas {view} start={open?.side ?? 'forge'} secrets={data.secrets} war={warFound} onpick={onPick}>
+		<SceneCanvas {view} start={open?.side ?? 'forge'} secrets={data.secrets} war={warFound} quiet={!entered} onpick={onPick}>
 			<Pins {view} show={introPins || interestsOpen} {lit} />
+			<!-- Phones: the bubble waits for the corner to fold, or they overlap. -->
+			{#if home && entered && inviting && data.site.invite && view.shown && view.side === 'forge' && !view.flipping && !(phone && cornerOpen)}
+				<Invite {view} text={data.site.invite} note={data.site.inviteNote} />
+			{/if}
 			{#if secret}
 				{#key secret.id}
 					<SecretNote {view} {secret} onclose={() => (secretId = null)} />
 				{/key}
 			{/if}
-			<Controls
-				{view}
-				interests={shownInterests}
-				stations={data.stations}
-				{active}
-				bind:open={interestsOpen}
-				bind:height={controlsHeight}
-				{hint}
-				compact={phone}
-				onchoose={chooseInterest}
-				onflip={flip}
-			/>
+			{#if entered}
+				<Controls
+					{view}
+					interests={shownInterests}
+					stations={data.stations}
+					{active}
+					bind:open={interestsOpen}
+					bind:height={controlsHeight}
+					bind:cornerOpen
+					found={found.length}
+					secrets={data.secrets.length}
+					compact={phone}
+					{flippable}
+					onchoose={chooseInterest}
+					onflip={flip}
+				/>
+			{/if}
 		</SceneCanvas>
 
 		<!-- Pinned top-left over the island, whatever is open (outside the column, which moves as a card or sheet). -->
@@ -316,10 +377,33 @@
 			<a class="wordmark" href={homeHref()}><Logo /><span class="name">{data.site.name}</span></a>
 		</header>
 
-		<!-- Desktop, at home: the invitation (`invite` in site.md) under the corner icons, until the first station opens. -->
-		{#if home && !explored && data.site.invite}
-			<p class="invite">{@html data.site.invite}</p>
-		{/if}
+		<!-- The title: big at the front door, then small under the wordmark on every page. -->
+		<div class="hero" class:door={!entered}>
+			<svelte:element this={page.route.id === '/' ? 'h1' : 'p'} class="title" bind:this={title}>
+				<span class="lead">{@html data.site.heroLead}</span>
+				{#if data.site.heroRest}<span class="rest">{@html data.site.heroRest}</span>{/if}
+			</svelte:element>
+			{#if !entered}
+				<div class="way-in" out:fade={{ duration: 250 }}>
+					<div class="sound-wrap">
+						<button class="sound" role="switch" aria-checked={music.on} onclick={() => music.toggle()}>
+							<span class="knob" aria-hidden="true"></span>
+							<span>Sound {music.on ? 'on' : 'off'}</span>
+						</button>
+						<p class="why">Sound on for the best experience</p>
+					</div>
+					{#if view.shown}
+						<button class="enter" onclick={enter} use:focusIt in:fade={{ duration: 400 }}>Enter</button>
+					{:else}
+						<span class="bar" role="status" aria-label="Loading the island" class:waiting={view.progress === 0}>
+							<span style:transform="scaleX({view.progress})"></span>
+						</span>
+					{/if}
+				</div>
+			{/if}
+		</div>
+		<!-- Until then, the island can be seen but not touched. -->
+		{#if !entered}<div class="cover" aria-hidden="true" out:fade={{ duration: 250 }}></div>{/if}
 
 		<div class="column" bind:this={column} bind:clientWidth={columnWidth}>
 			<main class:home={!open && !chosen}>
@@ -417,21 +501,235 @@
 		padding: 8px 16px;
 		border-radius: calc(100vw - 100%);
 	}
-	/* Top-right, right-aligned under the corner icons (38px tall, 18px down, 28px in; see Controls). */
-	.invite {
-		position: absolute;
-		top: 68px;
-		right: 28px;
-		z-index: 2;
-		max-width: 34ch;
-		margin: 0;
-		color: var(--muted);
-		font: 14px/1.5 var(--font-text);
-		text-align: right;
-		pointer-events: none;
-	}
 	main {
 		flex: 1;
+	}
+
+	/* The title, small, right under the wordmark; a soft halo in the sky's colour keeps it readable. */
+	.hero {
+		position: absolute;
+		z-index: 2;
+		top: 80px;
+		left: 34px;
+		pointer-events: none;
+		text-shadow:
+			0 0 2px var(--sky),
+			0 0 10px var(--sky),
+			0 0 22px color-mix(in srgb, var(--sky) 70%, transparent);
+	}
+	.title {
+		width: fit-content;
+		margin: 0;
+		font-family: var(--font-display);
+		transform-origin: top left;
+	}
+	/* One voice, two lines: the lead in the ember colour, the rest in the text colour. */
+	.lead {
+		display: block;
+		font-size: 20px;
+		font-weight: 600;
+		line-height: 1.05;
+		letter-spacing: -0.015em;
+		color: var(--ember-ink);
+		white-space: nowrap;
+	}
+	.rest {
+		display: block;
+		margin-top: 4px;
+		font-size: 14px;
+		font-weight: 500;
+		line-height: 1.2;
+		white-space: nowrap;
+	}
+	/* One line, so the second voice reads as one piece (the breaks in site.md are for other layouts). */
+	.rest :global(br) {
+		display: none;
+	}
+	/* At the door: big, coming in as the island loads (the lead, then the rest, then the way in). The
+	   two sizes keep about the same ratio, so the glide to small is one even scale. */
+	.hero.door {
+		top: 18vh;
+		left: 32px;
+		max-width: min(44vw, 600px);
+	}
+	.door .lead {
+		font-size: clamp(34px, 3.3vw, 54px);
+		white-space: normal;
+		text-wrap: balance;
+		animation: rise 0.9s ease-out both;
+	}
+	.door .rest {
+		margin-top: 10px;
+		font-size: clamp(24px, 2.3vw, 34px);
+		white-space: normal;
+		animation: rise 0.9s 0.35s ease-out both;
+	}
+	.way-in {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 22px;
+		margin-top: 30px;
+		pointer-events: auto;
+		animation: rise 0.9s 0.8s ease-out both;
+	}
+	/* Off in red, on in green, with the nudge underneath. */
+	.sound-wrap {
+		--sound: #d0433b;
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+	}
+	.sound-wrap:has([aria-checked='true']) {
+		--sound: #2f9e57;
+	}
+	:global(.shell.dark) .sound-wrap {
+		--sound: #ff6f66;
+	}
+	:global(.shell.dark) .sound-wrap:has([aria-checked='true']) {
+		--sound: #5fd38a;
+	}
+	.sound {
+		display: inline-flex;
+		align-items: center;
+		gap: 10px;
+		padding: 0;
+		border: 0;
+		background: none;
+		color: var(--sound);
+		font: 600 14px/1.2 var(--font-ui);
+		text-shadow: inherit;
+		cursor: pointer;
+	}
+	.why {
+		margin: 0;
+		color: var(--muted);
+		font: 13px/1.3 var(--font-ui);
+	}
+	.knob {
+		position: relative;
+		flex: none;
+		width: 32px;
+		height: 18px;
+		border-radius: 9px;
+		background: var(--sound);
+		transition: background 0.2s;
+	}
+	.knob::after {
+		content: '';
+		position: absolute;
+		top: 3px;
+		left: 3px;
+		width: 12px;
+		height: 12px;
+		border-radius: 50%;
+		background: var(--paper);
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+		transition: translate 0.2s;
+	}
+	.sound[aria-checked='true'] .knob::after {
+		translate: 14px 0;
+	}
+	.enter {
+		padding: 12px 38px;
+		border: 0;
+		border-radius: 999px;
+		background: var(--ember);
+		color: #2b1a0e;
+		font: 600 14px/1.2 var(--font-ui);
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		text-shadow: none;
+		cursor: pointer;
+		box-shadow: 0 8px 24px color-mix(in srgb, var(--ember) 40%, transparent);
+		transition:
+			transform 0.15s,
+			box-shadow 0.15s;
+	}
+	.enter:hover {
+		transform: translateY(-1px);
+		box-shadow: 0 10px 28px color-mix(in srgb, var(--ember) 55%, transparent);
+	}
+	/* Loading: a thin bar where the Enter button will be. */
+	.bar {
+		position: relative;
+		display: block;
+		width: 160px;
+		height: 3px;
+		margin: 18px 0;
+		border-radius: 3px;
+		background: var(--line);
+		overflow: hidden;
+	}
+	.bar > span {
+		position: absolute;
+		inset: 0;
+		background: var(--ember);
+		transform-origin: left;
+		transition: transform 0.3s ease-out;
+	}
+	.bar.waiting > span {
+		width: 30%;
+		transform: none !important;
+		animation: wait 1.2s ease-in-out infinite;
+	}
+	@keyframes wait {
+		from {
+			left: -30%;
+		}
+		to {
+			left: 100%;
+		}
+	}
+	@keyframes rise {
+		from {
+			opacity: 0;
+			transform: translateY(10px);
+		}
+	}
+	.cover {
+		position: absolute;
+		inset: 0;
+		z-index: 1;
+	}
+	@media (max-width: 760px) {
+		.hero {
+			top: 60px;
+			left: 18px;
+		}
+		.lead {
+			font-size: 18px;
+		}
+		.rest {
+			font-size: 12.5px;
+		}
+		/* Phones: the door sits over the island's foot. */
+		.hero.door {
+			top: auto;
+			bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+			left: 20px;
+			right: 20px;
+			max-width: none;
+		}
+		.door .lead {
+			font-size: 30px;
+		}
+		.door .rest {
+			margin-top: 6px;
+			font-size: 21px;
+		}
+		.way-in {
+			gap: 18px;
+			margin-top: 22px;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.door .lead,
+		.door .rest,
+		.way-in,
+		.bar.waiting > span {
+			animation: none;
+		}
 	}
 	/* The hero sits in the middle of the column; the page places it (and what goes below it). */
 	main.home {
@@ -617,10 +915,6 @@
 		}
 		.wordmark {
 			font-size: 20px;
-		}
-		/* No room for the invitation on phones: the corner icons and the island fill the top. */
-		.invite {
-			display: none;
 		}
 		main.home {
 			justify-content: flex-start;

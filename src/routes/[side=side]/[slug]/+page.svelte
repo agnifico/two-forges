@@ -4,6 +4,8 @@
 	import { homeHref, isExternal } from '#lib/content/urls.ts';
 	import { afterNavigate } from '$app/navigation';
 	import SkillsPanel from '#lib/components/SkillsPanel.svelte';
+	import Carousel from '#lib/components/Carousel.svelte';
+	import Reel from '#lib/components/Reel.svelte';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -38,12 +40,26 @@
 
 	{#if s.html}<div class="prose">{@html s.html}</div>{/if}
 
+	{#each s.reels as reel (reel.page)}
+		<Reel {reel} />
+	{/each}
+
+	{#each s.carousels as carousel (carousel.title)}
+		<Carousel {carousel} />
+	{/each}
+
 	{#if s.gallery.length}
 		<ul class="gallery" aria-label="Gallery">
 			{#each s.gallery as image (image.src)}
 				<li>
 					<figure>
-						<img src={image.src} alt={image.alt} loading="lazy" />
+						{#if image.url}
+							<a href={image.url} target={isExternal(image.url) ? '_blank' : undefined} rel={isExternal(image.url) ? 'noopener' : undefined}>
+								<img src={image.src} alt={image.alt} loading="lazy" />
+							</a>
+						{:else}
+							<img src={image.src} alt={image.alt} loading="lazy" />
+						{/if}
 						{#if image.caption}<figcaption>{image.caption}</figcaption>{/if}
 					</figure>
 				</li>
@@ -57,6 +73,7 @@
 			<ul>
 				{#each s.entries as entry (entry.title)}
 					<li>
+						{#if entry.image}<img class="thumb" src={entry.image} alt="" loading="lazy" />{/if}
 						{#if entry.date}<span class="date">{entry.date}</span>{/if}
 						<span class="what">
 							{#if entry.url}
@@ -134,11 +151,26 @@
 		padding: 0;
 		list-style: none;
 	}
-	.gallery li:first-child {
+	/* The first image runs wide, and so does a last one left without a partner. */
+	.gallery li:first-child,
+	.gallery li:last-child:nth-child(even) {
 		grid-column: 1 / -1;
+	}
+	/* Wide, an image keeps its own shape; in pairs, they're cropped to match. */
+	.gallery li:first-child img,
+	.gallery li:last-child:nth-child(even) img {
+		aspect-ratio: auto;
 	}
 	figure {
 		margin: 0;
+	}
+	figure a {
+		display: block;
+		border-radius: 8px;
+	}
+	figure a:hover img {
+		outline: 2px solid var(--ember);
+		outline-offset: 2px;
 	}
 	figure img {
 		display: block;
@@ -175,6 +207,14 @@
 		gap: 14px;
 		padding: 12px 0;
 		border-bottom: 1px solid var(--line);
+	}
+	.thumb {
+		flex: none;
+		width: 96px;
+		aspect-ratio: 16 / 10;
+		object-fit: cover;
+		border-radius: 6px;
+		background: var(--line);
 	}
 	.date {
 		flex: none;

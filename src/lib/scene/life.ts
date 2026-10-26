@@ -8,7 +8,6 @@ import {
 	CanvasTexture,
 	Color,
 	ConeGeometry,
-	CylinderGeometry,
 	DoubleSide,
 	Group,
 	IcosahedronGeometry,
@@ -76,8 +75,8 @@ export function buildLife(
 
 	// Decor that lights up, burns or holds water: each copy gets a holder placed like it.
 	const kinds = new Map(decorKinds.map((k) => [k.id, k]));
-	const hasLife = (kind: DecorKind | undefined): kind is DecorKind => !!kind && !!(kind.light || kind.fill || kind.effects);
-	/** Adds a kind's fire, smoke, light and liquid to `holder`, in the copy's own frame. */
+	const hasLife = (kind: DecorKind | undefined): kind is DecorKind => !!kind && !!(kind.light || kind.effects);
+	/** Adds a kind's fire, smoke and light to `holder`, in the copy's own frame. */
 	const kindLife = (kind: DecorKind, holder: Object3D) => {
 		for (const effect of kind.effects ?? []) {
 			const made = makeEffect(effect, materials, rng, own);
@@ -101,12 +100,6 @@ export function buildLife(
 				(bulb.material as MeshBasicMaterial).opacity = night;
 				bulb.visible = night > 0.05;
 			});
-		}
-		if (kind.fill) {
-			const r = kind.fill.radius;
-			const disc = new Mesh(own(new CylinderGeometry(r, r, 0.04, 16)), materials.solid(kind.fill.color));
-			disc.position.set(0, kind.fill.height, 0);
-			holder.add(disc);
 		}
 	};
 	for (const p of layout.decor) {

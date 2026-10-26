@@ -22,7 +22,6 @@
 			<li>
 				<a href={stationHref(s.side, s.station)}>
 					<span class="title">{s.title}</span>
-					{#if s.label}<span class="label">{s.label}</span>{/if}
 				</a>
 			</li>
 		{/each}
@@ -58,9 +57,5 @@
 	}
 	.title {
 		font: 600 17px/1.3 var(--font-display);
-	}
-	.label {
-		font-size: 14px;
-		color: var(--muted);
 	}
 </style>

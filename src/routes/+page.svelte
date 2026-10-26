@@ -1,8 +1,12 @@
 <script lang="ts">
+	import { getContext } from 'svelte';
+	import { fade } from 'svelte/transition';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 	const { site } = $derived(data);
+	/** Past the front door (see the layout, which also shows the title). */
+	const entered = getContext<() => boolean>('entered');
 </script>
 
 <svelte:head>
@@ -21,14 +25,11 @@
 	<meta name="twitter:card" content={site.url ? 'summary_large_image' : 'summary'} />
 </svelte:head>
 
-<h1 class="welcome">
-	<span class="lead">{@html site.heroLead}</span>
-	{#if site.heroRest}<span class="rest">{@html site.heroRest}</span>{/if}
-</h1>
-
-<!-- How to get around (pointer screens only) and the way to the plain page; at the foot of the column.
-     The invitation to explore (`invite` in site.md) is in the layout, top-right. -->
-<div class="how">
+<!-- How to get around (pointer screens only) and the way to the plain page; at the foot of the column,
+     once in. The title is in the layout; the invitation to explore (`invite` in site.md) is a bubble
+     over the cottage, also in the layout. -->
+{#if entered()}
+<div class="how" in:fade={{ duration: 400 }}>
 	<ul class="mouse" aria-label="Mouse controls">
 		<li>
 			<svg viewBox="0 0 24 24" aria-hidden="true"><path class="on" d="M12 3a6 6 0 0 0-6 6v2h6z" /><rect x="6" y="3" width="12" height="18" rx="6" /><path d="M12 3v8M6 11h12" /></svg>
@@ -46,39 +47,9 @@
 	<!-- Everything on one plain page, for those who'd rather not explore. -->
 	<a class="simple" href="/simplified">Simplified version →</a>
 </div>
+{/if}
 
 <style>
-	/* Desktop: the hero right-aligned in the middle of the column, the how-to at its foot. */
-	.welcome {
-		margin: auto 0;
-		padding-bottom: 6vh;
-		font-family: var(--font-display);
-		text-align: right;
-		text-wrap: balance;
-	}
-	/* One voice, two lines: the lead in the ember colour, the rest in the text colour, same serif. */
-	.lead {
-		display: block;
-		font-size: clamp(34px, 3.3vw, 54px);
-		padding-top: 4rem;
-		font-weight: 600;
-		line-height: 1.05;
-		letter-spacing: -0.015em;
-		color: var(--ember-ink);
-	}
-	.rest {
-		display: block;
-		margin: 10px 0 0 auto;
-		width: fit-content;
-		font-size: clamp(24px, 2.3vw, 34px);
-		font-weight: 500;
-		line-height: 1.2;
-	}
-	/* One line, so the second voice reads as one piece (the breaks in site.md are for other layouts). */
-	.rest :global(br) {
-		display: none;
-	}
-
 	.how {
 		display: flex;
 		flex-direction: column;
@@ -135,11 +106,10 @@
 	}
 
 	/*
-	 * Desktop: no column at home. The hero sits under the wordmark, over the scene, and the legend in
-	 * the bottom-right corner; a soft halo in the sky's colour keeps them readable over grass and rock.
+	 * Desktop: no column at home. The legend sits in the bottom-right corner; a soft halo in the sky's
+	 * colour keeps it readable over grass and rock.
 	 */
 	@media (min-width: 761px) {
-		.welcome,
 		.how {
 			position: absolute;
 			z-index: 1;
@@ -148,17 +118,6 @@
 				0 0 10px var(--sky),
 				0 0 22px color-mix(in srgb, var(--sky) 70%, transparent);
 		}
-		.welcome {
-			top: 82px;
-			left: 32px;
-			max-width: min(44vw, 600px);
-			margin: 0;
-			padding: 0;
-			text-align: left;
-		}
-		.rest {
-			margin-left: 0;
-		}
 		.how {
 			right: 32px;
 			bottom: 24px;
@@ -166,19 +125,6 @@
 	}
 
 	@media (max-width: 760px) {
-		/* Phones: the hero over the island's foot, left-aligned. */
-		.welcome {
-			margin: 0;
-			padding-bottom: 0;
-			text-align: left;
-		}
-		.lead {
-			font-size: 30px;
-		}
-		.rest {
-			margin: 6px 0 0;
-			font-size: 22px;
-		}
 		/*
 		 * Phones: only the way to the simplified page, the last thing on screen: under Interests and
 		 * hobbies, in the room the layout leaves below it (--foot).

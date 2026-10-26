@@ -6,7 +6,7 @@ import { marked } from 'marked';
 import { parse as parseYaml } from 'yaml';
 import { slots, type StationId } from '../scene/config';
 import { sides, type SideId } from '../scene/sides';
-import { skillsTabs, type Entry, type GalleryImage, type Interest, type Link, type Secret, type Site, type Skills, type SkillsTab, type StationContent, type StationSummary, type TagGroup } from '../content/types';
+import { skillsTabs, type Carousel, type Entry, type GalleryImage, type Interest, type Link, type Reel, type Secret, type Site, type Skills, type SkillsTab, type StationContent, type StationSummary, type TagGroup } from '../content/types';
 import { slugStation } from '../content/urls';
 import { tag } from './tags';
 
@@ -97,6 +97,13 @@ const list = <T>(file: string, data: Record<string, unknown>, key: string, check
 const links = (file: string, data: Record<string, unknown>): Link[] =>
 	list(file, data, 'links', (l) => ({ label: text(file, l, 'label', true), url: text(file, l, 'url', true) }));
 
+const image = (file: string) => (g: Record<string, unknown>): GalleryImage => ({
+	src: text(file, g, 'src', true),
+	alt: text(file, g, 'alt'),
+	caption: text(file, g, 'caption') || undefined,
+	url: text(file, g, 'url') || undefined
+});
+
 /** `/src/content/stations/forge/drafting-desk.md` → side and slug. */
 const parsePath = (path: string) => {
 	const [, side, slug] = /\/([^/]+)\/([^/]+)\.md$/.exec(path)!;
@@ -143,20 +150,30 @@ function readStation(path: string): StationContent {
 		side,
 		slug,
 		title: text(file, data, 'title', true),
-		label: text(file, data, 'label'),
 		introHtml: renderInline(intro),
 		description: text(file, data, 'description') || plain(intro),
 		html: render(body),
-		gallery: list(file, data, 'gallery', (g): GalleryImage => ({
-			src: text(file, g, 'src', true),
-			alt: text(file, g, 'alt'),
-			caption: text(file, g, 'caption') || undefined
+		carousels: list(file, data, 'carousels', (c): Carousel => ({
+			title: text(file, c, 'title', true),
+			summary: text(file, c, 'summary') || undefined,
+			url: text(file, c, 'url') || undefined,
+			images: list(file, c, 'images', image(file))
 		})),
+		reels: list(file, data, 'reels', (r): Reel => ({
+			title: text(file, r, 'title', true),
+			summary: text(file, r, 'summary') || undefined,
+			page: text(file, r, 'page', true),
+			preview: text(file, r, 'preview') || undefined,
+			poster: text(file, r, 'poster', true),
+			alt: text(file, r, 'alt')
+		})),
+		gallery: list(file, data, 'gallery', image(file)),
 		entries: list(file, data, 'entries', (e): Entry => ({
 			title: text(file, e, 'title', true),
 			date: text(file, e, 'date') || undefined,
 			url: text(file, e, 'url') || undefined,
-			summary: text(file, e, 'summary') || undefined
+			summary: text(file, e, 'summary') || undefined,
+			image: text(file, e, 'image') || undefined
 		})),
 		skills: skillsTab(file, data),
 		links: links(file, data)
@@ -181,7 +198,8 @@ function load() {
 		heroLead: renderInline(lead.trim()),
 		// A space after each break, so the lines still read apart where a layout hides the breaks.
 		heroRest: renderInline(rest.join('\n').trim()).replace(/<br>/g, '<br> '),
-		invite: renderInline(text('src/content/site.md', siteData, 'invite'))
+		invite: renderInline(text('src/content/site.md', siteData, 'invite')),
+		inviteNote: renderInline(text('src/content/site.md', siteData, 'inviteNote'))
 	};
 
 	const stations = Object.keys(stationFiles).map(readStation);
@@ -230,13 +248,7 @@ function load() {
 	return cache;
 }
 
-const summary = ({ station, side, slug, title, label }: StationContent): StationSummary => ({
-	station,
-	side,
-	slug,
-	title,
-	label
-});
+const summary = ({ station, side, slug, title }: StationContent): StationSummary => ({ station, side, slug, title });
 
 /** What every page needs: the site, the interests, a summary of each station, and the secrets. */
 export function loadShared() {

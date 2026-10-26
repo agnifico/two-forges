@@ -181,6 +181,8 @@ export const cameraConfig = {
 	 * Above 1 the view zooms towards the cursor for detail, but never drifts off the island.
 	 */
 	defaultZoom: 0.95,
+	/** Landscape screens open closer than that: the island fills the right, clear of the title on the left. */
+	landscapeZoom: 1.5,
 	minZoom: 0.7,
 	maxZoom: 3,
 	fitMargin: 1.05,
@@ -345,7 +347,8 @@ export const upperPond = {
 		[6.68, 5.29]
 	] as Point[],
 	roughness: { amplitude: 0.2, wavelength: 2.4, chipAmplitude: 0.08 } as Roughness,
-	waterDrop: 0.15,
+	/** Deeper than the grass band (0.35), so a strip of rock shows under the green edge: a bank. */
+	waterDrop: 0.5,
 	depth: 0.8,
 	lilyPads: 0
 };
@@ -404,6 +407,11 @@ export const stationEffects: Partial<Record<StationId, EffectConfig[]>> = {
 	arcade: [
 		{ kind: 'light', offset: [0, 1.9, 1.4], color: '#6fe3ff', size: 1, when: 'night' },
 		{ kind: 'glow', offset: [0, 1.85, 0.75], size: 0.75, color: '#8ff0ff', when: 'night' }
+	],
+	// A warm white spill from the front, and its window lit (front face ~0.9 out, 2.7 tall).
+	vendingMachine: [
+		{ kind: 'light', offset: [0, 1.8, 1.6], color: '#fff1d6', size: 1, when: 'night' },
+		{ kind: 'glow', offset: [0, 1.65, 0.95], size: 0.9, color: '#fff4dc', when: 'night' }
 	]
 };
 
@@ -435,6 +443,8 @@ export type StationId =
 	| 'cottage'
 	| 'waterwheel'
 	| 'readingCorner'
+	| 'workbench'
+	| 'vendingMachine'
 	// War side
 	| 'keep'
 	| 'arena'
@@ -468,6 +478,8 @@ export const slots: SlotConfig[] = [
 	{ id: 'graveyard', tier: 'floor', radius: 1.6 },
 	{ id: 'seventhFloor', tier: 'keep', radius: 2 },
 	{ id: 'readingCorner', tier: 'middle', radius: 1.6 },
+	{ id: 'workbench', tier: 'middle', radius: 1.6 },
+	{ id: 'vendingMachine', tier: 'middle', radius: 1 },
 	{ id: 'hero', tier: 'keep', radius: 1 },
 	{ id: 'market', tier: 'floor', radius: 1.6 },
 	{ id: 'arenaTree', tier: 'arena-sand', radius: 1.2 }
@@ -733,6 +745,19 @@ export const stationModels: StationModelConfig[] = [
 			{ kind: 'bookcase-wide-full', offset: [-2.99, 0, 1.7], rotationDeg: 81.17 },
 			{ kind: 'bookcase-closed-full', offset: [-3.8, 0, 4.14], rotationDeg: 40.21 }
 		]
+	},
+	{
+		// The tool shed by the forge: the open-roofed shelter, the grindstone in front of it, where
+		// they stood as decor.
+		station: 'workbench',
+		props: [
+			{ kind: 'shelter' },
+			{ kind: 'grindstone', offset: [2.17, 0, -3], rotationDeg: 37.32 }
+		]
+	},
+	{
+		station: 'vendingMachine',
+		props: [{ kind: 'vending-machine' }]
 	}
 ];
 
@@ -899,8 +924,9 @@ interface DecorKindBase {
 	repaint?: Repaint | Repaint[];
 	/** Brightness multiplier on top of `tint`, which on its own can only darken. */
 	brighten?: number;
-	/** Lay a ground patch (sand and dry grass) under each copy, so it settles into the grass. */
-	patch?: boolean;
+	/** Lay a ground patch under each copy, so it settles into the grass: sand ringed with dry grass
+	 * (true, for rocks) or deep grass ('grass', for plants). */
+	patch?: true | 'grass';
 	/** Sink into the ground by this much (world units). */
 	sink?: number;
 	/** Fixed height instead of the ground's, for things on or in the pond. */
@@ -909,7 +935,7 @@ interface DecorKindBase {
 	topper?: { kind: string; lift: number };
 	/** A light that comes on at night, at this height above each copy (world units at copy scale 1). */
 	light?: { height: number; color?: string; intensity?: number; distance?: number };
-	/** A flat disc of liquid inside each copy (water in a bucket): its radius and height. */
+	/** A flat disc of liquid, part of each copy's model: its radius and height (world units at copy scale 1). */
 	fill?: { radius: number; height: number; color: string };
 	/** Fire, smoke or light on every copy, turning with it; offsets in world units at copy scale 1. */
 	effects?: EffectConfig[];
@@ -928,16 +954,16 @@ export const decorKinds: DecorKind[] = [
 	{ id: 'ember-tree', pack: 'survival-kit', file: 'tree-autumn', scale: 0.55, repaint: { area: [160, 256, 32, 128], color: '#8a2348' } },
 
 	// Bushes, reeds and grass
-	{ id: 'leaf-clump', pack: 'survival-kit', file: 'grass-large', scale: 0.8 },
-	{ id: 'leafy-spread', pack: 'pirate-kit', file: 'grass-plant', scale: 0.7 },
-	{ id: 'reeds', pack: 'platformer-kit', file: 'grass', scale: 0.8 },
+	{ id: 'leaf-clump', pack: 'survival-kit', file: 'grass-large', scale: 0.8, patch: 'grass' },
+	{ id: 'leafy-spread', pack: 'pirate-kit', file: 'grass-plant', scale: 0.7, patch: 'grass' },
+	{ id: 'reeds', pack: 'platformer-kit', file: 'grass', scale: 0.8, patch: 'grass' },
 
 	// Rocks
 	{ id: 'rock-large', pack: 'survival-kit', file: 'rock-b', scale: 0.5, tint: palette.rockTint, brighten: 1.55, patch: true },
 	{ id: 'rock-tall', pack: 'survival-kit', file: 'rock-c', scale: 0.45, tint: palette.rockTint, brighten: 1.55, patch: true },
 	{ id: 'rock-medium', pack: 'survival-kit', file: 'rock-b', scale: 0.3, tint: palette.rockTint, brighten: 1.55, patch: true },
 	{ id: 'rock-small', pack: 'survival-kit', file: 'rock-a', scale: 0.3, tint: palette.rockTint, brighten: 1.55, patch: true },
-	{ id: 'grass-tuft', pack: 'platformer-kit', file: 'grass', scale: 0.5 },
+	{ id: 'grass-tuft', pack: 'platformer-kit', file: 'grass', scale: 0.5, patch: 'grass' },
 	{ id: 'stone-shallows', pack: 'survival-kit', file: 'rock-a', scale: 0.25, tint: palette.rockTint, brighten: 1.55, height: -0.4 },
 
 	// Forge corner
@@ -948,7 +974,9 @@ export const decorKinds: DecorKind[] = [
 	{ id: 'shovel', pack: 'survival-kit', file: 'tool-shovel', scale: 1 },
 	{ id: 'hammer', pack: 'survival-kit', file: 'tool-hammer', scale: 1 },
 	{ id: 'planks', pack: 'survival-kit', file: 'resource-planks', scale: 0.8 },
-	{ id: 'bucket', pack: 'survival-kit', file: 'bucket', scale: 1, fill: { radius: 0.36, height: 1.05, color: palette.water } },
+	{ id: 'bucket', pack: 'survival-kit', file: 'bucket', scale: 1 },
+	// A flat disc of water to drop wherever it's wanted (in a bucket, a trough, a puddle); scale to fit.
+	{ id: 'water-disc', pack: 'survival-kit', scale: 1, parts: [], fill: { radius: 0.4, height: 0.02, color: palette.water } },
 	{ id: 'palisade', pack: 'survival-kit', file: 'fence-fortified', scale: 0.6 },
 
 	// Atelier

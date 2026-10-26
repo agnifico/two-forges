@@ -1,6 +1,5 @@
 ---
 title: Strife-born Sand Pine
-label: The Rare Sand Pine
 intro: A symbol of perseverance.
 ---
 The sand pine is seen commonly across the land, but this rare mutation grows in the blood soaked Arena sand.

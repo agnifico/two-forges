@@ -1,47 +1,36 @@
 # The "Interests and hobbies" bubbles, in the order they show. Each links to the stations it lives
 # in (station ids from config.ts, on either side of the island). One station: the bubble opens it.
-# Several: the camera frames them all and the blurb shows with a link to each.
+# Several: the camera frames them all and a card shows the blurb with a link to each. So a blurb
+# is only needed (and only shown) when an interest has several stations.
 # Every station should appear in at least one interest, so keyboard visitors can reach it.
 
 - id: about
   label: About Me
   stations: [cottage]
-  blurb: Where I live when I'm not at the anvil.
 
 - id: making
-  label: Forged in Fire - JunesForge
+  label: JunesForge
   stations: [furnace]
   blurb: Everything here starts in the fire.
 
+- id: techstack
+  label: Tech/Stack
+  stations: [workbench]
+  blurb: Everything here starts in the fire.
+
 - id: art
-  label: Art and Expression
-  stations: [easels, paintVats]
-  blurb: Drawing, painting, and the colours I keep coming back to.
-
-- id: architecture
-  label: Space and Design
-  stations: [draftingDesk]
-  blurb: Buildings I'd like to see stand.
-
-- id: maps
-  label: World Building
-  stations: [mapTable]
-  blurb: Places that exist, and some that don't yet.
+  label: Art/Expression
+  stations: [easels, paintVats, draftingDesk, mapTable, readingCorner]
+  blurb: The creative side - one I refused to choose but chose me instead.
 
 - id: gaming
-  label: Once, a gamer...
-  stations: [arcade]
+  label: Gaming
+  stations: [arcade, vendingMachine]
   blurb: The games that made me.
 
-- id: reading
-  label: Books and Trivia
-  stations: [readingCorner]
-  blurb: What I read, and the odd facts that stay with me.
-
 - id: engineering
-  label: ...always a student.
+  label: Engineering
   stations: [waterwheel]
-  blurb: Taking things apart until only the atoms are left.
 
 - id: world
   label: Worldview
@@ -56,9 +45,7 @@
 - id: memory
   label: The Ashes
   stations: [graveyard]
-  blurb: The people and moments I carry with me.
 
 - id: commons
   label: The Commons
   stations: [market]
-  blurb: The people and the trade around the castle.

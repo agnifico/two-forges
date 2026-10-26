@@ -45,7 +45,8 @@ interface Deck {
 }
 
 class Music {
-	on = $state(true);
+	/** Off until the visitor turns it on (the front door asks); their choice is remembered. */
+	on = $state(false);
 	volume = $state(0.5);
 	/** The tune playing (or to play once sound may start), 0-based. */
 	index = $state(0);

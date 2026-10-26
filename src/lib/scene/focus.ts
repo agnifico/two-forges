@@ -4,7 +4,6 @@
 
 import { Box3, MathUtils, Vector3 } from 'three';
 import type { CameraRig } from './camera';
-import { cameraConfig } from './config';
 
 const EASE_MS = 900;
 const INTRO_MS = 1400;
@@ -111,10 +110,14 @@ export function createFocus(rig: CameraRig) {
 		},
 		/** The island settles in from a little further out. */
 		intro() {
-			if (prefersReducedMotion()) return;
-			camera.zoom = cameraConfig.defaultZoom * INTRO_ZOOM;
+			if (prefersReducedMotion()) {
+				camera.zoom = rig.homeZoom;
+				camera.updateProjectionMatrix();
+				return;
+			}
+			camera.zoom = rig.homeZoom * INTRO_ZOOM;
 			camera.updateProjectionMatrix();
-			moveTo(controls.target.clone(), cameraConfig.defaultZoom, INTRO_MS);
+			moveTo(controls.target.clone(), rig.homeZoom, INTRO_MS);
 		},
 		dispose: stop
 	};

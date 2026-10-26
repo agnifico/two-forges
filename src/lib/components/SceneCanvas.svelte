@@ -11,6 +11,7 @@
 		start,
 		secrets,
 		war = true,
+		quiet = false,
 		onpick,
 		children
 	}: {
@@ -20,6 +21,8 @@
 		secrets: SecretTarget[];
 		/** The War Forge has been found, so the island's description may name it. */
 		war?: boolean;
+		/** The home page's front door shows the loading progress itself. */
+		quiet?: boolean;
 		onpick: (pick: Pick | null) => void;
 		children?: Snippet;
 	} = $props();
@@ -44,7 +47,7 @@
 		below, lead to each of its stations.
 	</p>
 
-	{#if !view.shown}
+	{#if !view.shown && !quiet}
 		<div class="loading" role="status">
 			<span>{start === 'war' ? 'To the empire of the sun…' : 'Down we go the rabbit hole…'}</span>
 			<span class="bar" class:waiting={view.progress === 0}>

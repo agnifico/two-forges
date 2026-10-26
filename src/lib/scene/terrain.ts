@@ -234,7 +234,8 @@ function createPatchLayer(groundHeight: Island['groundHeight'], rng: Rng, colors
 }
 type PatchLayer = ReturnType<typeof createPatchLayer>;
 
-/** A few patches of dry grass, deep grass and earth scattered over each tier that asks for them. */
+/** A few patches of dry grass and earth scattered over each tier that asks for them. (Deep grass
+ * follows the plants instead: see addDecorPatches.) */
 function addScatteredPatches(
 	patches: PatchLayer,
 	tiers: SideTier[],
@@ -242,8 +243,8 @@ function addScatteredPatches(
 	groundHeight: Island['groundHeight'],
 	rng: Rng
 ) {
-	const [dryGrass, deepGrass, , earth] = patches.materials;
-	const choices = [dryGrass, deepGrass, earth, dryGrass, deepGrass];
+	const [dryGrass, , , earth] = patches.materials;
+	const choices = [dryGrass, earth, dryGrass];
 	for (const tier of tiers) {
 		if (!tier.patches) continue;
 		const min = new Vector2(Infinity, Infinity);
@@ -264,14 +265,22 @@ function addScatteredPatches(
 	}
 }
 
-/** A sandy patch ringed with dry grass under every copy of a decor kind marked `patch` (rocks). */
+/**
+ * Under every copy of a decor kind marked `patch`: a sandy patch ringed with dry grass (rocks), or a
+ * patch of deep grass (plants), so they follow wherever things are placed.
+ */
 function addDecorPatches(patches: PatchLayer, side: SideConfig, rng: Rng) {
-	const [dryGrass, , sand] = patches.materials;
+	const [dryGrass, deepGrass, sand] = patches.materials;
 	const kinds = new Map(decorKinds.map((k) => [k.id, k]));
 	for (const p of side.layout.decor) {
 		const kind = kinds.get(p.kind);
 		if (!kind?.patch) continue;
 		const [x, z] = p.at;
+		if (kind.patch === 'grass') {
+			const r = rng.range(0.9, 1.4) * (p.scale ?? 1);
+			for (const fit of [1, 0.7, 0.5]) if (patches.add(x, z, r * fit, deepGrass)) break;
+			continue;
+		}
 		const r = 0.55 * kindScale(kind) * (p.scale ?? 1);
 		// Shrink until it fits on its tier.
 		for (const fit of [1, 0.75, 0.55]) {

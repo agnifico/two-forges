@@ -47,11 +47,14 @@ export function createCameraRig(canvas: HTMLCanvasElement, subject: Object3D) {
 	 */
 	let inset = 0;
 	let insetGoal = 0;
+	/** The visitor's default zoom: closer on landscape screens. */
+	const homeZoom = () => (size.width >= size.height ? cameraConfig.landscapeZoom : cameraConfig.defaultZoom);
 	/** The view's half-height left clear above and below the target at zoom 1 (less when lifted). */
 	const clearHalfHeight = () => camera.top * (1 - lift);
 	const applyFrustum = () => {
 		const aspect = size.width / size.height;
-		const usable = Math.max(0.3, 1 - inset / size.width);
+		// A negative inset (home on desktop) shifts the island right without framing it any closer.
+		const usable = MathUtils.clamp(1 - inset / size.width, 0.3, 1);
 		// Portrait screens frame the island a little closer and let its sides crop.
 		const crop = aspect < 1 ? cameraConfig.portraitZoom : 1;
 		const halfHeight = (Math.max(fit.halfHeight, fit.halfWidth / (aspect * usable)) * cameraConfig.fitMargin) / crop;
@@ -150,6 +153,9 @@ export function createCameraRig(canvas: HTMLCanvasElement, subject: Object3D) {
 				applyFrustum();
 			}
 		},
+		get homeZoom() {
+			return homeZoom();
+		},
 		get clearHalfHeight() {
 			return clearHalfHeight();
 		},
@@ -228,7 +234,7 @@ export function createCameraRig(canvas: HTMLCanvasElement, subject: Object3D) {
 		/** Back to the visitor's default view: isometric, centred, default zoom. */
 		reset() {
 			controls.target.copy(home);
-			camera.zoom = cameraConfig.defaultZoom;
+			camera.zoom = homeZoom();
 			camera.updateProjectionMatrix();
 			this.viewFrom(ISO_POLAR, azimuth);
 		},

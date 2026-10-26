@@ -13,6 +13,8 @@ export interface GalleryImage {
 	src: string;
 	alt: string;
 	caption?: string;
+	/** Where the image leads (the piece on Dribbble, say). */
+	url?: string;
 }
 
 export interface Entry {
@@ -20,6 +22,16 @@ export interface Entry {
 	date?: string;
 	url?: string;
 	summary?: string;
+	/** A small thumbnail beside the title. */
+	image?: string;
+}
+
+/** One project's images, one at a time, with its name (and a link) above. */
+export interface Carousel {
+	title: string;
+	summary?: string;
+	url?: string;
+	images: GalleryImage[];
 }
 
 /** A skill or tool, as a coloured tag with the brand's logo where there is one. */
@@ -58,8 +70,10 @@ export interface Site {
 	heroLead: string;
 	/** The hero's remaining lines (may be empty), as HTML with line breaks. */
 	heroRest: string;
-	/** A line under the hero asking visitors to explore (may be empty), as HTML. */
+	/** The cottage's speech bubble asking visitors to explore (may be empty), as HTML. */
 	invite: string;
+	/** A smaller second line in that bubble (may be empty), as HTML. */
+	inviteNote: string;
 }
 
 export interface Interest {
@@ -76,8 +90,18 @@ export interface StationSummary {
 	/** The station's URL segment (`drafting-desk`). */
 	slug: string;
 	title: string;
-	/** A short line naming what the station is about. */
-	label: string;
+}
+
+/** A piece that plays (an HTML reel): a short looping preview here, the whole page over the island on a tap. */
+export interface Reel {
+	title: string;
+	summary?: string;
+	/** The reel itself, a page under static/ (`/reels/theory-of-games.html`). Loaded only when opened. */
+	page: string;
+	/** A short, silent, looping clip (MP4), shown over the poster. */
+	preview?: string;
+	poster: string;
+	alt: string;
 }
 
 /** A station's full content, loaded when its page opens. */
@@ -86,6 +110,8 @@ export interface StationContent extends StationSummary {
 	introHtml: string;
 	description: string;
 	html: string;
+	carousels: Carousel[];
+	reels: Reel[];
 	gallery: GalleryImage[];
 	entries: Entry[];
 	/** Shows the skills panel, opened on this tab. */

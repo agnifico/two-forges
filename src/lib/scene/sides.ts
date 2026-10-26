@@ -140,7 +140,9 @@ export const forgeSide: SideConfig = {
 		'easels',
 		'paintVats',
 		'waterwheel',
-		'readingCorner'
+		'readingCorner',
+		'workbench',
+		'vendingMachine'
 	],
 	layout: forgeLayout,
 	wallRuns: [],

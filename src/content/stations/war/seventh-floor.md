@@ -1,6 +1,5 @@
 ---
 title: The Seventh Floor
-label: Higher than gods
 intro: Seven floors of living things, then one floor with nothing but a bed and a mirror.
 ---
 Oda Nobunaga raised Azuchi Castle over Lake Biwa, seven floors high. The story goes that every floor

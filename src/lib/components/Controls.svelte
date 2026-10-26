@@ -1,6 +1,6 @@
 <!-- The site's few controls. Interests and hobbies, the one labelled thing, sits alone at the bottom of
-     the island and opens a row of bubbles above it. Flip and day/night are bare icons in the top-right
-     corner, left for the curious to find out what they do. On phones the corner folds into one round
+     the island and opens a row of bubbles above it. The simplified version, flip (only where the War Forge
+     is in play) and day/night are bare icons in the top-right corner, left for the curious to find out. On phones the corner folds into one round
      button: open, the music player fans out to its left and flip and day/night drop below it. It starts
      open with a note on the sound, and folds away when the note goes. -->
 <script lang="ts">
@@ -22,8 +22,11 @@
 		active,
 		open = $bindable(),
 		height = $bindable(0),
-		hint,
+		cornerOpen = $bindable(true),
+		found = 0,
+		secrets = 0,
 		compact = false,
+		flippable = false,
 		onchoose,
 		onflip
 	}: {
@@ -35,10 +38,15 @@
 		open: boolean;
 		/** The controls' height, for the layout to keep the hero clear of them on phones. */
 		height?: number;
-		/** First visit: say what's clickable. */
-		hint: boolean;
+		/** Phones: the corner is open (it starts open, for the intro). */
+		cornerOpen?: boolean;
+		/** Secrets found so far, and how many there are: counted beside the side tag once there's one. */
+		found?: number;
+		secrets?: number;
 		/** Phones: the corner icons fold into one button. */
 		compact?: boolean;
+		/** The flip button shows (the War Forge is in play: /all, its stations, or its side up). */
+		flippable?: boolean;
 		onchoose: (interest: Interest) => void;
 		onflip: () => void;
 	} = $props();
@@ -51,8 +59,6 @@
 		if (open) opened = true;
 	});
 
-	/** Phones: the corner is open (it starts open, for the intro). */
-	let cornerOpen = $state(true);
 	/** Phones: the intro is on, showing the sound note; any use of the corner ends it early. */
 	let intro = $state(true);
 	let corner = $state<HTMLElement>();
@@ -98,10 +104,6 @@
 		</ul>
 	{/if}
 
-	{#if hint}
-		<p class="hint" role="status">Move your cursor around, click anything that glows.</p>
-	{/if}
-
 	<div class="bar">
 		<button
 			class="pill primary"
@@ -113,11 +115,20 @@
 			<svg viewBox="0 0 24 24" aria-hidden="true">
 				<path d="M12 3l2.2 5.6L20 9.3l-4.5 3.8L17 19l-5-3.1L7 19l1.5-5.9L4 9.3l5.8-.7z" />
 			</svg>
-			<span>Interests and hobbies</span>
+			<span>Skills and Interests</span>
 			<svg class="caret" class:up={open} viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6" /></svg>
 		</button>
 		<!-- Where you are: the side that's up. -->
 		<p class="where"><span class="dot" aria-hidden="true"></span><span class="sr">You are in</span> {sideNames[view.side]}</p>
+		<!-- Secrets found: hidden until the first, then it pops again with each new one. -->
+		{#if found}
+			{#key found}
+				<p class="where found" role="status">
+					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4z" /></svg>
+					{found} of {secrets} secrets found
+				</p>
+			{/key}
+		{/if}
 	</div>
 </div>
 
@@ -139,7 +150,14 @@
 	<div class="items" id="corner-items" inert={folded}>
 		<MusicPlayer {view} />
 		<div class="drop">
-			{#if view.canFlip}
+			<!-- The plain, one-page version of the site. -->
+			<a class="pill round" href="/simplified" aria-label="Simplified version" title="Simplified version">
+				<svg viewBox="0 0 24 24" aria-hidden="true">
+					<rect x="4" y="4" width="7" height="9" rx="1.5" /><rect x="13" y="4" width="7" height="5" rx="1.5" />
+					<rect x="13" y="11" width="7" height="9" rx="1.5" /><rect x="4" y="15" width="7" height="5" rx="1.5" />
+				</svg>
+			</a>
+			{#if view.canFlip && flippable}
 				<button
 					class="pill round"
 					onclick={onflip}
@@ -391,14 +409,27 @@
 		box-shadow: 0 0 0 2px color-mix(in srgb, var(--bonus) 35%, transparent);
 	}
 
-	.hint {
-		margin: 0;
-		padding: 7px 12px;
-		border-radius: 999px;
-		background: var(--chip);
-		color: var(--muted);
-		backdrop-filter: blur(6px);
-		animation: appear 0.6s ease-out;
+	/* Secrets found: the side tag's twin, with a spark that flares as a new one comes in. */
+	.found {
+		animation: found 0.7s cubic-bezier(0.3, 1.6, 0.5, 1);
+	}
+	.found svg {
+		width: 11px;
+		height: 11px;
+		fill: currentColor;
+		animation: spark 0.9s ease-out;
+	}
+	@keyframes found {
+		from {
+			opacity: 0;
+			scale: 0.6;
+		}
+	}
+	@keyframes spark {
+		from {
+			rotate: -180deg;
+			scale: 2;
+		}
 	}
 
 	@keyframes appear {
@@ -524,7 +555,8 @@
 		.pill,
 		.primary.beckon,
 		.bubbles li,
-		.hint {
+		.found,
+		.found svg {
 			animation: none;
 		}
 	}

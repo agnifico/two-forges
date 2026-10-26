@@ -1,6 +1,4 @@
 ---
-title: The Waterwheel
-label: Engineering and first principles
-intro: How things work, taken apart until only the atoms are left.
+title: Engineering and first principles
+intro: I love solving puzzles, and knowing how stuff works. I like breaking down concepts until only the fundamental bricks remains - the entities and the rules governing them. Functions and objects, as we call them in computer science.
 ---
-*Placeholder.* Engineering, computer science, and the habit of asking what something is really made of.

@@ -1,6 +1,7 @@
 import {
 	Box3,
 	Color,
+	CylinderGeometry,
 	Group,
 	InstancedMesh,
 	MathUtils,
@@ -224,6 +225,14 @@ export async function loadProps(
 				piece.rotation.y = MathUtils.degToRad(part.rotationDeg ?? 0);
 				model.add(piece);
 			}
+		}
+		// Liquid is part of the model, so it's instanced and the placement tool can pick it.
+		if (kind.fill) {
+			const s = kindScale(kind);
+			const r = kind.fill.radius / s;
+			const disc = new Mesh(new CylinderGeometry(r, r, 0.04 / s, 24), toon.solid(kind.fill.color));
+			disc.position.y = kind.fill.height / s;
+			model.add(disc);
 		}
 		model.updateMatrixWorld(true);
 		decorModels.set(kind.id, model);
