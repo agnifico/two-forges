@@ -32,20 +32,25 @@
   label: Engineering
   stations: [waterwheel]
 
-- id: world
-  label: Worldview
-  stations: [keep, seventhFloor, hero]
+- id: policy
+  label: Policy
+  stations: [keep]
   blurb: The beliefs I defend, and the fights I pick for them.
 
-- id: fighting
-  label: Strategist-class Gladiator
+- id: sovereignty
+  label: Sovereignty
+  stations: [seventhFloor, hero]
+  blurb: The beliefs I defend, and the fights I pick for them.
+
+- id: warfare
+  label: Warfare
   stations: [arena, arenaTree]
   blurb: The beliefs I defend, and the fights I pick for them.
 
 - id: memory
-  label: The Ashes
+  label: Rememberance
   stations: [graveyard]
 
 - id: commons
-  label: The Commons
+  label: Trade
   stations: [market]

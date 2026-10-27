@@ -1,6 +1,6 @@
 ---
 title: The Easels
-intro: Sketches, studies and finished pieces.
+intro: Some of my works.
 gallery:
   - src: /content/easels/fire.webp
     alt: Isometric fortress city with an amphitheatre, cannons and red-leafed trees.
@@ -19,4 +19,3 @@ gallery:
     caption: Water.
     url: https://dribbble.com/jxnesforge
 ---
-*Placeholder.* Illustration is where I started. This is where the work will hang.

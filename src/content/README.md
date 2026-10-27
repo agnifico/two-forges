@@ -41,7 +41,7 @@ reels:                          # an HTML reel: its preview loops beside the tit
 gallery:                        # the first image is wide, the rest in pairs (an odd one out runs wide)
   - { src: /content/furnace/01.jpg, alt: What it shows, caption: Optional, url: Optional link }
 entries:                        # a list of works or write-ups
-  - { title: Propsize, date: '2025', url: https://…, summary: One line, image: /content/furnace/propsize.webp }
+  - { title: Propsize, date: '2025', url: https://…, summary: One line, image: /content/furnace/propsize-watchtower.jpg }
                                 # image: an optional thumbnail beside the title
 skills: stack                   # shows the skills panel (skills.yaml), open on this tab:
                                 # glance, stack or misc

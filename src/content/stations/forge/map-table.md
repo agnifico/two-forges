@@ -1,6 +1,6 @@
 ---
-title: The Map Table
-intro: Maps of places that exist, and of some that don't yet.
+title: Map Table
+intro: The Art of World Building
 carousels:
   - title: Dawn's Journey
     summary: Nuvatra, the world of my browser RPG, drawn tile by tile.
@@ -19,14 +19,20 @@ carousels:
     summary: An open world you fly through, from island towns to aurora skies.
     url: https://firefightergirl.vercel.app/
     images:
-      - src: /content/map-table/ffg-island.webp
-        alt: A white-walled town on a green island in a turquoise sea, with rocks floating above.
-        caption: An island town by day.
-      - src: /content/map-table/ffg-fort.webp
-        alt: A sandstone fort on a riverbank under a pink sky.
-        caption: The river fort at dusk.
-      - src: /content/map-table/ffg-aurora.webp
-        alt: Silhouetted houses on a ridge under a green aurora.
-        caption: The northern ridge at night.
+      - src: /content/map-table/ffg-shallows.jpg
+        alt: Palm-covered sandbars in shallow turquoise water, with a sailing ship on the horizon and rocks floating overhead.
+        caption: The Shallows.
+      - src: /content/map-table/ffg-fjord.jpg
+        alt: A deep blue fjord between dark cliffs dusted with snow, with flat ice floes on the water.
+        caption: The Fjord.
+      - src: /content/map-table/ffg-takama.jpg
+        alt: A terraced island with a pagoda and a red-railed path up a rock spire, floating above pink clouds.
+        caption: Takama, above the clouds.
 ---
-*Placeholder.* Worlds I've built, the rules they run on, and the maps that hold them together.
+Set the terrain, explain the geomorphosis and the effect it might have on people and agriculture, or access to trade routes, and how all of that would shape how a society grows. I love all that stuff.
+
+I think the art of world-building is one of the most cross-domain, intersectional skill one can learn to do well - and I think it usually does take a lifetime.
+
+==So, constructing a fictional world, slots right into my affinity towards fields where humanities meets science.==
+
+Here are some worlds I've built - more as experiments to a larger project.

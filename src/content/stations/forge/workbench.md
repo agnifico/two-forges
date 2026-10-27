@@ -1,5 +1,5 @@
 ---
 title: The Workbench
-intro: The tools I reach for, hung up in the shed.
+intro: The stuff that matters if you're a recuiter.
 skills: stack
 ---

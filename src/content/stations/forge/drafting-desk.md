@@ -1,6 +1,6 @@
 ---
-title: The Drafting Desk
-intro: Plans, sections and the buildings I'd like to see stand.
+title: Drawing Board
+intro: Logos, branding, posters - good old graphic design.
 reels:
   - title: The Theory of Games
     summary: How we think about branding, played out as an 8-bit game. About four minutes; scroll to scrub through it, or tap to play.
@@ -43,4 +43,4 @@ gallery:
     alt: Energy HSE Summit 2026 wordmark over a dark crop field.
     caption: Energy HSE Summit 2026.
 ---
-*Placeholder.* Sketches and studies of spaces, and what I look for in a building.
+I started using Photoshop about 15 years ago. In that time I've picked up Illustrator, InDesign, some 3D modelling, pixel art, terrain design, and much more. Seen the rise and fall of minimalism - at least in prevalence. And now we're here - Figma and Claude.

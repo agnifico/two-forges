@@ -1,6 +1,6 @@
 ---
 title: The Paint Vats
-intro: Colour studies, and the palettes I keep coming back to.
+intro: Some more of my works, more conceptual ones.
 gallery:
   - src: /content/paint-vats/forge-shield.webp
     alt: Technical drawing of a hexagonal shield, from sketch to assembly to final piece, on a dark grid.
@@ -15,4 +15,3 @@ gallery:
     caption: The spear.
     url: https://dribbble.com/shots/25752613-Forge-Blueprints
 ---
-*Placeholder.* Notes on colour: how I mix it, steal it and argue with it.

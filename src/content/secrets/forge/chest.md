@@ -1,5 +1,5 @@
 ---
-title: An old chest
+title: Secrets
 decor: chest
 ---
-Things I can't bring myself to throw away. One day I'll sort them. Not today.
+There are some secrets scattered across this floating island. An environment and level designer's way of saying "Thanks", for the truly curious ones.

@@ -1,4 +1,4 @@
 ---
 title: The Vending Machine
-intro: Placeholder. What's in it, and what it costs.
+intro: The shelves will be restocked with a new line of fizzy drinks soon. Please come again later.
 ---

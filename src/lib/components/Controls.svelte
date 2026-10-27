@@ -90,6 +90,7 @@
 	{#if open}
 		<ul class="bubbles" id="interest-list" aria-label="Skills and Interests">
 			{#each bubbles as { interest, side }, i (interest.id)}
+				{#if side === 'war' && bubbles[i - 1]?.side === 'forge'}<li class="break" role="presentation"></li>{/if}
 				<li style:--i={i}>
 					<button
 						class:active={active.includes(interest.id)}
@@ -365,6 +366,11 @@
 		clip-path: inset(50%);
 		white-space: nowrap;
 	}
+	/* The war side's bubbles start their own row (desktop; phones keep one scrolling row). */
+	.bubbles li.break {
+		flex-basis: 100%;
+		margin-top: -6px;
+	}
 	.bubbles li {
 		animation: appear 0.3s ease-out backwards;
 		animation-delay: calc(var(--i) * 25ms);
@@ -468,6 +474,9 @@
 		}
 		.bubbles li {
 			flex: none;
+		}
+		.bubbles li.break {
+			display: none;
 		}
 		.world {
 			top: 14px;

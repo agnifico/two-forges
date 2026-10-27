@@ -455,7 +455,9 @@
 		--chip-hover: #fffaf1;
 		--ember: #e8893f;
 		--ember-ink: #b85c1c;
-		--mark: rgba(232, 137, 63, 0.38);
+		/* Content emphasis: the ==highlight== band behind words, and the colour of **bold** words. */
+		--mark: rgba(255, 111, 0, 0.38);
+		--strong: #8f4a1d;
 		/* Orange accents: borders, glows, and chip backgrounds with a hint of orange. */
 		--ember-line: rgba(232, 137, 63, 0.6);
 		--ember-glow: rgba(232, 137, 63, 0.35);
@@ -486,7 +488,8 @@
 		--chip-hover: #3d3562;
 		--ember: #f2a25c;
 		--ember-ink: #ffbe82;
-		--mark: rgba(242, 162, 92, 0.62);
+		--mark: #c55757cb;
+		--strong: #ffcfa3;
 		--ember-line: rgba(242, 162, 92, 0.6);
 		--ember-glow: rgba(242, 162, 92, 0.35);
 		--ember-tint: #4b3b55;
@@ -927,7 +930,8 @@
 		-webkit-box-decoration-break: clone;
 	}
 	.shell :global(strong) {
-		font-weight: 650;
+		font-weight: 600;
+		color: var(--strong);
 	}
 	/* Headings get focus from code (so screen readers start there), not from Tab: no ring. */
 	.shell :global([tabindex='-1']:focus-visible) {
