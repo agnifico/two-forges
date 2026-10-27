@@ -8,6 +8,7 @@ import { slots, type StationId } from '../scene/config';
 import { sides, type SideId } from '../scene/sides';
 import { skillsTabs, type Carousel, type Entry, type GalleryImage, type Interest, type Link, type Reel, type Secret, type Site, type Skills, type SkillsTab, type StationContent, type StationSummary, type TagGroup } from '../content/types';
 import { slugStation } from '../content/urls';
+import { linkIcons } from './link-icons';
 import { tag } from './tags';
 
 const raw = (files: Record<string, unknown>) => files as Record<string, string>;
@@ -94,8 +95,26 @@ const list = <T>(file: string, data: Record<string, unknown>, key: string, check
 	});
 };
 
+/** An icon's name in the content → its SVG path. */
+function icon(file: string, name: string): string | undefined {
+	if (!name) return undefined;
+	if (!(name in linkIcons)) fail(file, `"${name}" is not an icon (use ${Object.keys(linkIcons).join(', ')})`);
+	return linkIcons[name];
+}
+
 const links = (file: string, data: Record<string, unknown>): Link[] =>
-	list(file, data, 'links', (l) => ({ label: text(file, l, 'label', true), url: text(file, l, 'url', true) }));
+	list(file, data, 'links', (l) => ({
+		label: text(file, l, 'label', true),
+		url: text(file, l, 'url', true),
+		icon: icon(file, text(file, l, 'icon'))
+	}));
+
+const socials = (file: string, data: Record<string, unknown>): Link[] =>
+	list(file, data, 'socials', (l) => ({
+		label: text(file, l, 'label', true),
+		url: text(file, l, 'url', true),
+		icon: icon(file, text(file, l, 'icon', true))
+	}));
 
 const image = (file: string) => (g: Record<string, unknown>): GalleryImage => ({
 	src: text(file, g, 'src', true),
@@ -176,7 +195,8 @@ function readStation(path: string): StationContent {
 			image: text(file, e, 'image') || undefined
 		})),
 		skills: skillsTab(file, data),
-		links: links(file, data)
+		links: links(file, data),
+		socials: socials(file, data)
 	};
 }
 

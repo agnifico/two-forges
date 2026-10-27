@@ -40,6 +40,11 @@
 				font-display: swap;
 			}
 		</style>
+		<!-- Umami analytics (cloud.umami.is): anonymous page views, no cookies. The ID only says which
+		     dashboard the visits go to; it isn't a secret. -->
+		<script defer src="https://cloud.umami.is/script.js" data-website-id="64da71bf-8905-4c7b-b409-392bb12f0978"></script>
+		<!-- Cloudflare Web Analytics: the same kind of anonymous counts, no cookies. The token isn't a secret either. -->
+		<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "4936f7be911e4c39bd4c6fb2f1ffb1f8"}'></script>
 		<!-- At night the page is built in day colours and only turns dark once the script runs. Until then,
 		     show plain night sky instead of a flash of cream. Same rule as isNight() in daylight.ts.
 		     The layout removes the class once it's up. -->

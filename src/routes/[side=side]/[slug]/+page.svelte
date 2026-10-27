@@ -95,12 +95,28 @@
 		<div class="skills"><SkillsPanel {skills} open={s.skills} /></div>
 	{/if}
 
-	{#if s.links.length}
+	{#if s.links.length || s.socials.length}
 		<ul class="links">
 			{#each s.links as link (link.url)}
 				<li>
 					<a href={link.url} target={isExternal(link.url) ? '_blank' : undefined} rel={isExternal(link.url) ? 'noopener' : undefined}>
+						{#if link.icon}<svg viewBox="0 0 24 24" aria-hidden="true"><path d={link.icon} /></svg>{/if}
 						{link.label}{#if isExternal(link.url)}<span aria-hidden="true"> ↗</span><span class="sr">(opens in a new tab)</span>{/if}
+					</a>
+				</li>
+			{/each}
+			<!-- Socials: icons only, set a little apart from the links. -->
+			{#each s.socials as social, i (social.url)}
+				<li class:first-social={i === 0 && s.links.length > 0}>
+					<a
+						class="social"
+						href={social.url}
+						title={social.label}
+						aria-label={social.label}
+						target={isExternal(social.url) ? '_blank' : undefined}
+						rel={isExternal(social.url) ? 'noopener' : undefined}
+					>
+						<svg viewBox="0 0 24 24" aria-hidden="true"><path d={social.icon} /></svg>
 					</a>
 				</li>
 			{/each}
@@ -248,7 +264,9 @@
 		list-style: none;
 	}
 	.links a {
-		display: inline-block;
+		display: inline-flex;
+		align-items: center;
+		gap: 7px;
 		padding: 8px 14px;
 		border: 1px solid var(--line);
 		border-radius: 999px;
@@ -258,6 +276,18 @@
 	}
 	.links a:hover {
 		border-color: var(--ember);
+	}
+	.links svg {
+		width: 16px;
+		height: 16px;
+		fill: currentColor;
+	}
+	/* Socials: round icon buttons, with a gap between them and the links before. */
+	.links a.social {
+		padding: 8px;
+	}
+	.links .first-social {
+		margin-left: 14px;
 	}
 	.sr {
 		position: absolute;

@@ -7,6 +7,8 @@ import type { SideId } from '../scene/sides';
 export interface Link {
 	label: string;
 	url: string;
+	/** An SVG path on a 24×24 grid (named in the content, see server/link-icons.ts). */
+	icon?: string;
 }
 
 export interface GalleryImage {
@@ -117,6 +119,8 @@ export interface StationContent extends StationSummary {
 	/** Shows the skills panel, opened on this tab. */
 	skills?: SkillsTab;
 	links: Link[];
+	/** Shown as icons only, after the links; the label is the tooltip. */
+	socials: Link[];
 }
 
 /** A short note tied to one decor piece. Small enough to ship with every page. */

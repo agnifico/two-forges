@@ -46,7 +46,11 @@ entries:                        # a list of works or write-ups
 skills: stack                   # shows the skills panel (skills.yaml), open on this tab:
                                 # glance, stack or misc
 links:                          # buttons at the end; off-site links open in a new tab
-  - { label: GitHub, url: https://github.com/… }
+  - { label: Resume, url: /simplified/docs/…, icon: document }   # icon: optional, before the label
+socials:                        # icon-only buttons after the links; the label is the tooltip
+  - { label: GitHub, url: https://github.com/…, icon: github }
+                                # icons: document, email, linkedin, instagram, dribbble, github
+                                # (src/lib/server/link-icons.ts; add more there)
 ```
 
 The body is Markdown.
