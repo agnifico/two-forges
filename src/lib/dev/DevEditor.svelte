@@ -20,6 +20,11 @@
 	let status = $state('');
 	let open = $state(true);
 	let catalogOpen = $state(false);
+	/** Hides every bit of UI, the site's and this tool's, for clean screenshots. ` brings it back. */
+	let clean = $state(false);
+	$effect(() => {
+		document.documentElement.classList.toggle('clean-shot', clean);
+	});
 	let counts = $state<Record<string, number>>({});
 
 	const countKinds = () => {
@@ -44,7 +49,28 @@
 		handles.onSideChange(follow);
 		ready = handles;
 		if (devOn) startDev();
+		// The camera box: the view, read every frame.
+		const read = () => {
+			if (destroyed) return;
+			cam = handles.rig.view;
+			requestAnimationFrame(read);
+		};
+		read();
 	});
+
+	/** The current view, for setting the opening view (cameraConfig.opening) from it. */
+	let cam = $state<{ azimuthDeg: number; polarDeg: number; zoom: number; pan: readonly number[] }>();
+	let copied = $state(false);
+	const r = (n: number, d = 2) => Number(n.toFixed(d));
+	const camSnippet = () =>
+		cam
+			? `opening: { azimuthDeg: ${r(cam.azimuthDeg)}, polarDeg: ${r(cam.polarDeg)}, pan: [${cam.pan.map((n) => r(n)).join(', ')}] as Vec3 },\nlandscapeZoom: ${r(cam.zoom)},`
+			: '';
+	async function copyCam() {
+		await navigator.clipboard.writeText(camSnippet());
+		copied = true;
+		setTimeout(() => (copied = false), 1500);
+	}
 
 	// Dev mode: the placement tool on, or off for the full visitor experience (the backtick key toggles).
 	let ready: Awaited<typeof world.ready>;
@@ -122,7 +148,8 @@
 		if ((e.target as HTMLElement).closest('input, textarea, select')) return;
 		if (e.key === '`' && !e.metaKey && !e.ctrlKey && !e.altKey) {
 			e.preventDefault();
-			toggleDev();
+			if (clean) clean = false;
+			else toggleDev();
 			return;
 		}
 		if (!editor || catalogOpen) return;
@@ -189,9 +216,23 @@
 	<Catalog onclose={() => (catalogOpen = false)} />
 {/if}
 
-<button class="dev-switch" class:on={devOn} onclick={toggleDev} title="Dev mode: the placement tool (`)">
-	Dev {devOn ? 'on' : 'off'} <kbd>`</kbd>
-</button>
+<div class="dev-corner">
+	<button class="dev-switch" onclick={() => (clean = true)} title="Hide all UI for a screenshot; ` brings it back">Hide UI</button>
+	<button class="dev-switch" class:on={devOn} onclick={toggleDev} title="Dev mode: the placement tool (`)">
+		Dev {devOn ? 'on' : 'off'} <kbd>`</kbd>
+	</button>
+</div>
+
+{#if devOn && cam}
+	<!-- Collapse the panel to orbit as a visitor (within the visitor's tilt limits), then copy. -->
+	<div class="camera-box">
+		<span>Turn <b>{cam.azimuthDeg.toFixed(1)}°</b></span>
+		<span>Tilt <b>{cam.polarDeg.toFixed(1)}°</b></span>
+		<span>Zoom <b>{cam.zoom.toFixed(2)}</b></span>
+		<span>Pan <b>{cam.pan.map((n) => n.toFixed(1)).join(', ')}</b></span>
+		<button onclick={copyCam} title="Copy as cameraConfig values (opening and landscapeZoom) for config.ts">{copied ? 'Copied' : 'Copy'}</button>
+	</div>
+{/if}
 
 {#if devOn}
 <aside class="panel" class:closed={!open}>
@@ -286,11 +327,49 @@
 {/if}
 
 <style>
-	.dev-switch {
+	.camera-box {
+		position: fixed;
+		right: 96px;
+		bottom: 12px;
+		z-index: 11;
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		padding: 4px 6px 4px 12px;
+		border: 1px solid rgba(80, 60, 40, 0.25);
+		border-radius: 999px;
+		background: rgba(255, 251, 243, 0.92);
+		color: #3b3128;
+		font: 12px/1.3 system-ui, sans-serif;
+		font-variant-numeric: tabular-nums;
+	}
+	.camera-box b {
+		font-weight: 600;
+	}
+	.camera-box button {
+		padding: 2px 10px;
+		border: 1px solid rgba(80, 60, 40, 0.25);
+		border-radius: 999px;
+		background: #3b3128;
+		color: #fff8ee;
+		font: inherit;
+		cursor: pointer;
+	}
+	/* Clean-shot mode: only the island's canvas stays. Everything else in the page (wordmark, title,
+	   controls, pins, hints, this tool) is hidden. */
+	:global(html.clean-shot .shell > :not(.stage)),
+	:global(html.clean-shot .stage > :not(canvas)) {
+		visibility: hidden !important;
+	}
+	.dev-corner {
 		position: fixed;
 		right: 12px;
 		bottom: 12px;
 		z-index: 11;
+		display: flex;
+		gap: 6px;
+	}
+	.dev-switch {
 		padding: 4px 10px;
 		border: 1px solid rgba(80, 60, 40, 0.25);
 		border-radius: 999px;

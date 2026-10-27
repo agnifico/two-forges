@@ -169,12 +169,12 @@
 	.volume::-webkit-slider-runnable-track {
 		height: 3px;
 		border-radius: 3px;
-		background: color-mix(in srgb, var(--ink) 25%, transparent);
+		background: var(--line);
 	}
 	.volume::-moz-range-track {
 		height: 3px;
 		border-radius: 3px;
-		background: color-mix(in srgb, var(--ink) 25%, transparent);
+		background: var(--line);
 	}
 	.volume::-webkit-slider-thumb {
 		width: 11px;

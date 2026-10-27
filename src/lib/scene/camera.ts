@@ -28,11 +28,12 @@ export interface Fit {
  */
 export function createCameraRig(canvas: HTMLCanvasElement, subject: Object3D) {
 	const tilt = MathUtils.degToRad(cameraConfig.tiltRangeDeg);
-	const azimuth = MathUtils.degToRad(cameraConfig.azimuthDeg);
+	const azimuth = MathUtils.degToRad(cameraConfig.opening.azimuthDeg);
 	// Zoom 1 is framed for the narrow band; visitors may tilt further (the island may crop a little).
 	const measure = (o: Object3D): Fit => measureFit(collectPoints(o), [ISO_POLAR - tilt, ISO_POLAR, ISO_POLAR + tilt]);
 	const minPolar = ISO_POLAR - MathUtils.degToRad(cameraConfig.tiltUpDeg);
 	const maxPolar = ISO_POLAR + MathUtils.degToRad(cameraConfig.tiltDownDeg);
+	const openingPolar = MathUtils.clamp(MathUtils.degToRad(cameraConfig.opening.polarDeg), minPolar, maxPolar);
 	let fit = measure(subject);
 	let size = { width: 1, height: 1 };
 	/**
@@ -69,13 +70,16 @@ export function createCameraRig(canvas: HTMLCanvasElement, subject: Object3D) {
 		camera.updateProjectionMatrix();
 	};
 
+	/** Where the view centres at the opening: the island's centre, panned. */
+	const openingTarget = fit.target.clone().add(new Vector3(...cameraConfig.opening.pan));
+
 	const camera = new OrthographicCamera(-1, 1, 1, -1, 1, cameraConfig.distance * 2);
-	camera.position.setFromSphericalCoords(cameraConfig.distance, ISO_POLAR, azimuth).add(fit.target);
+	camera.position.setFromSphericalCoords(cameraConfig.distance, openingPolar, azimuth).add(openingTarget);
 	camera.zoom = cameraConfig.defaultZoom;
-	camera.lookAt(fit.target);
+	camera.lookAt(openingTarget);
 
 	const controls = new OrbitControls(camera, canvas);
-	controls.target.copy(fit.target);
+	controls.target.copy(openingTarget);
 	controls.enableDamping = true;
 	controls.dampingFactor = cameraConfig.dampingFactor;
 	controls.rotateSpeed = cameraConfig.rotateSpeed;
@@ -231,12 +235,22 @@ export function createCameraRig(canvas: HTMLCanvasElement, subject: Object3D) {
 			camera.lookAt(controls.target);
 			controls.update();
 		},
-		/** Back to the visitor's default view: isometric, centred, default zoom. */
+		/** Back to the opening view (cameraConfig.opening) at the default zoom. */
 		reset() {
-			controls.target.copy(home);
+			controls.target.copy(openingTarget);
 			camera.zoom = homeZoom();
 			camera.updateProjectionMatrix();
-			this.viewFrom(ISO_POLAR, azimuth);
+			this.viewFrom(openingPolar, azimuth);
+		},
+		/** The view now, in cameraConfig.opening's terms (for the dev panel's camera box). */
+		get view() {
+			const pan = controls.target.clone().sub(home);
+			return {
+				azimuthDeg: MathUtils.radToDeg(controls.getAzimuthalAngle()),
+				polarDeg: MathUtils.radToDeg(controls.getPolarAngle()),
+				zoom: camera.zoom,
+				pan: [pan.x, pan.y, pan.z] as const
+			};
 		},
 		dispose() {
 			controls.dispose();

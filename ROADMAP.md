@@ -219,3 +219,6 @@ Full notes, the interests-to-spaces map, pack notes and open questions are in `d
 - 2026-10-26: Upper pond bank deepened, bucket water made a separate water-disc kind, vending machine station with a night light, deep-grass patches follow the plants.
 - 2026-10-26: Front door on the home page (title, sound switch, Enter once loaded; title then tucks under the wordmark); desktop opens closer, island right of the title.
 - 2026-10-26: Sound off by default (red/green switch at the door), simplified-version button in the corner, flip button only where the War Forge is in play.
+- 2026-10-26: Dev panel camera box (turn, tilt, zoom, pan; Copy gives `opening` and `landscapeZoom` for cameraConfig); the island opens on `cameraConfig.opening` (replaces `azimuthDeg`).
+- 2026-10-27: Day-mode door fix: the veil was the live sky mixed with purple (muddy grey by day); now plain cream by day and purple by night. Removed every color-mix in the site in favour of plain hardcoded colours and a few named theme colours in +layout.svelte.
+- 2026-10-27: Code audit (in chat). Fallback link to /simplified when the island can't load; night guard in app.html (no cream flash); "Interests and hobbies" renamed to "Skills and Interests" everywhere; removed unused recursive.woff2 and favicon-32.png. Analytics explained again (Umami Cloud, waits on the domain).

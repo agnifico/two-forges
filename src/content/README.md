@@ -5,7 +5,7 @@ Everything the site says lives here. It's read at build time (`src/lib/server/co
 
 - `site.md`: the name, author, home-page description, the live URL once there is one, and the hero
   text (the body).
-- `interests.yaml`: the "Interests and hobbies" bubbles, in order, each linked to its stations. A blurb is only
+- `interests.yaml`: the "Skills and Interests" bubbles, in order, each linked to its stations. A blurb is only
   needed when a bubble has several stations (it heads the card listing them).
 - `stations/<side>/<station>.md`: one file per station. The file name is the URL:
   `stations/forge/drafting-desk.md` is `/forge/drafting-desk` (station `draftingDesk`).

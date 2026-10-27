@@ -45,7 +45,7 @@ export const layout: Layout = {
 		{ kind: 'leafy-spread', at: [1.29, -14.82], rotationDeg: 79.58 },
 		{ kind: 'reeds', at: [12.6, 8.4], rotationDeg: 330.52 },
 		{ kind: 'reeds', at: [11.2, 16.2], rotationDeg: 141.83 },
-		{ kind: 'reeds', at: [8.6, 6.9], rotationDeg: 223.19 },
+		{ kind: 'reeds', at: [11.39, 3.07], rotationDeg: 223.19 },
 		{ kind: 'rock-large', at: [-18, -3], rotationDeg: 189.47 },
 		{ kind: 'rock-large', at: [17.6, -16.6], rotationDeg: 155.81 },
 		{ kind: 'rock-large', at: [-16.56, 6.66], rotationDeg: 284.57 },
@@ -133,7 +133,7 @@ export const layout: Layout = {
 		{ kind: 'hay-stack', at: [-4.06, -7.19], rotationDeg: -49.2 },
 		{ kind: 'arena-column', at: [2.89, 0.33], rotationDeg: 13.25, lift: -0.7 },
 		{ kind: 'rock-tall', at: [-0.59, 9.28], rotationDeg: 0 },
-		{ kind: 'mushrooms', at: [8.68, 2.12], rotationDeg: 32.74 },
+		{ kind: 'mushrooms', at: [5.78, 7.81], rotationDeg: -6.05, scale: 0.8 },
 		{ kind: 'flowers-red', at: [-2.17, 8.65], rotationDeg: 0, scale: 0.8 },
 		{ kind: 'barrel', at: [-6.48, -0.51], rotationDeg: 0, scale: 0.05 },
 		{ kind: 'barrel', at: [-6.63, -0.16], rotationDeg: 0, scale: 0.85 },
@@ -145,7 +145,7 @@ export const layout: Layout = {
 		{ kind: 'fence', at: [-5.95, 14.64], rotationDeg: -44.38 },
 		{ kind: 'fence', at: [-8.83, 16.55], rotationDeg: -70.53 },
 		{ kind: 'reeds', at: [-2.28, 11.3], rotationDeg: 0 },
-		{ kind: 'stone-shallows', at: [9.63, 7.76], rotationDeg: 0 },
+		{ kind: 'stone-shallows', at: [2.87, 19.1], rotationDeg: 0 },
 		{ kind: 'rock-large', at: [7.4, 3.95], rotationDeg: -115.19 },
 		{ kind: 'grass-tuft', at: [-0.92, 7.49], rotationDeg: 0 },
 		{ kind: 'grass-tuft', at: [0.81, 4.58], rotationDeg: 0 },
@@ -156,6 +156,11 @@ export const layout: Layout = {
 		{ kind: 'paving', at: [-9.83, 12.17], rotationDeg: 0 },
 		{ kind: 'produce-cart', at: [-6.73, 15.34], rotationDeg: -49.66 },
 		{ kind: 'water-disc', at: [-14.46, 7.98], rotationDeg: 0, scale: 1.1, lift: 0.65 },
-		{ kind: 'trebuchet', at: [-16.7, 16.08], rotationDeg: -169.52 }
+		{ kind: 'trebuchet', at: [-16.7, 16.08], rotationDeg: -169.52 },
+		{ kind: 'stone-shallows', at: [9.2, 5.53], rotationDeg: 0 },
+		{ kind: 'stone-shallows', at: [6.91, 7.47], rotationDeg: 7.87, scale: 1.5 },
+		{ kind: 'stone-shallows', at: [5.17, 9.09], rotationDeg: -86.19 },
+		{ kind: 'flowers-red', at: [7.84, 2.6], rotationDeg: 0 },
+		{ kind: 'brazier', at: [2.89, 0.32], rotationDeg: 12.33, scale: 0.8, lift: 1.38 }
 	]
 };

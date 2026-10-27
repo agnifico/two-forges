@@ -2,6 +2,8 @@
 title: Hello!
 intro: I am ==Agnihotra Bhattacharya== and I'm a software engineer, an artist, and a designer. Mainly.
 links:
+  - label: Resume
+    url: /simplified/docs/Agnihotra Bhattacharya — Resume.pdf
   - label: Proton eMail
     url: mailto:agnx13@proton.me
   - label: LinkedIn

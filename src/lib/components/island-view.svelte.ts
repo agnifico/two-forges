@@ -23,6 +23,8 @@ export class IslandView {
 	shown = $state(false);
 	/** Held still behind the home page's front door (no idle flight) until the visitor enters. */
 	held = $state(false);
+	/** The island couldn't be built (no WebGL, or a load failed): the page offers /simplified instead. */
+	failed = $state(false);
 	/** Model loading, 0 to 1. */
 	progress = $state(0);
 	side = $state<SideId>('forge');
@@ -63,12 +65,24 @@ export class IslandView {
 			this.progress = total ? loaded / total : 0;
 		};
 
-		const world = createWorld(canvas);
+		let world: World;
+		try {
+			world = createWorld(canvas);
+		} catch (err) {
+			console.error('The island could not be built.', err);
+			this.failed = true;
+			DefaultLoadingManager.onProgress = previousProgress;
+			return () => {};
+		}
 		this.world = world;
 		world.onSideChange((side) => (this.side = this.heading = side));
 		world.flipReady.then((ready) => (this.canFlip = ready));
 		world.ready.then(async (handles) => {
-			if (!handles || disposed) return;
+			if (disposed) return;
+			if (!handles) {
+				this.failed = true;
+				return;
+			}
 			if (start !== world.current() && (await world.flipReady) && !disposed && start !== world.current()) {
 				await world.flip({ instant: true });
 			}

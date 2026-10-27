@@ -43,11 +43,16 @@
 <div class="stage">
 	<canvas bind:this={canvas} class:shown={view.shown} aria-hidden="true"></canvas>
 	<p class="sr">
-		A floating island: June's Forge{#if war} on one side, the War Forge on the other{/if}. Interests and hobbies,
+		A floating island: June's Forge{#if war} on one side, the War Forge on the other{/if}. Skills and Interests,
 		below, lead to each of its stations.
 	</p>
 
-	{#if !view.shown && !quiet}
+	{#if view.failed}
+		<div class="loading" role="status">
+			<span>The island couldn't load on this device.</span>
+			<a href="/simplified">Simplified version →</a>
+		</div>
+	{:else if !view.shown && !quiet}
 		<div class="loading" role="status">
 			<span>{start === 'war' ? 'To the empire of the sun…' : 'Down we go the rabbit hole…'}</span>
 			<span class="bar" class:waiting={view.progress === 0}>
@@ -107,6 +112,9 @@
 		font: 13px/1.2 var(--font-ui);
 		color: var(--muted);
 		letter-spacing: 0.02em;
+	}
+	.loading a {
+		color: var(--ember-ink);
 	}
 	.bar {
 		position: relative;

@@ -25,9 +25,7 @@
 	<meta name="twitter:card" content={site.url ? 'summary_large_image' : 'summary'} />
 </svelte:head>
 
-<!-- How to get around (pointer screens only) and the way to the plain page; at the foot of the column,
-     once in. The title is in the layout; the invitation to explore (`invite` in site.md) is a bubble
-     over the cottage, also in the layout. -->
+<!-- How to get around: a mouse legend in the bottom-right corner, desktop only, once in. -->
 {#if entered()}
 <div class="how" in:fade={{ duration: 400 }}>
 	<ul class="mouse" aria-label="Mouse controls">
@@ -44,8 +42,6 @@
 			Scroll to zoom
 		</li>
 	</ul>
-	<!-- Everything on one plain page, for those who'd rather not explore. -->
-	<a class="simple" href="/simplified">Simplified version →</a>
 </div>
 {/if}
 
@@ -61,7 +57,6 @@
 	/* A game-style control legend: one per row, the mouse icons lined up on the right edge. */
 	.mouse {
 		display: flex;
-		/* flex-direction: column; */
 		align-items: flex-end;
 		gap: 7px;
 		margin: 0;
@@ -87,18 +82,6 @@
 		fill: var(--ember);
 		stroke: none;
 	}
-	.simple {
-		margin-top: -6px;
-		color: var(--ember-ink);
-		font: 14px/1.5 var(--font-text);
-		text-decoration: underline;
-		text-decoration-color: color-mix(in srgb, var(--ember) 45%, transparent);
-		text-underline-offset: 3px;
-		pointer-events: auto;
-	}
-	.simple:hover {
-		text-decoration-color: currentColor;
-	}
 	@media (pointer: coarse) {
 		.mouse {
 			display: none;
@@ -106,42 +89,26 @@
 	}
 
 	/*
-	 * Desktop: no column at home. The legend sits in the bottom-right corner; a soft halo in the sky's
-	 * colour keeps it readable over grass and rock.
+	 * Desktop: no column at home. The legend sits in the bottom-right corner on a dark panel, so it reads
+	 * over grass and rock, day or night.
 	 */
 	@media (min-width: 761px) {
 		.how {
 			position: absolute;
 			z-index: 1;
-			text-shadow:
-				0 0 2px var(--sky),
-				0 0 10px var(--sky),
-				0 0 22px color-mix(in srgb, var(--sky) 70%, transparent);
-		}
-		.how {
 			right: 32px;
-			bottom: 24px;
+			bottom: 36px;
+			padding: 8px 12px;
+			border-radius: 12px;
+			background: rgba(30, 24, 20, 0.55);
+			color: #efe6d8;
 		}
 	}
 
+	/* Phones: no mouse, so no legend. */
 	@media (max-width: 760px) {
-		/*
-		 * Phones: only the way to the simplified page, the last thing on screen: under Interests and
-		 * hobbies, in the room the layout leaves below it (--foot).
-		 */
 		.how {
-			position: fixed;
-			left: 16px;
-			bottom: 10px;
-			align-items: flex-start;
-			text-align: left;
-		}
-		.mouse {
 			display: none;
-		}
-		.simple {
-			margin-top: 0;
-			font-size: 13px;
 		}
 	}
 </style>

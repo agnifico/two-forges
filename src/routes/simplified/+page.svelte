@@ -1430,7 +1430,6 @@
 		flex: 1;
 		display: flex;
 		/* flex-direction: row-reverse; */
-		/* flex-direction: column; */
 		gap: 20px;
 		min-height: 0;
 		overflow: hidden;

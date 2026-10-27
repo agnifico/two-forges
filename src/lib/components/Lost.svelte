@@ -47,14 +47,14 @@
 		min-height: 40px;
 		margin-top: 8px;
 		padding: 0 18px;
-		border: 1px solid color-mix(in srgb, var(--ember) 60%, transparent);
+		border: 1px solid var(--ember-line);
 		border-radius: 999px;
-		background: color-mix(in srgb, var(--ember) 12%, var(--chip));
+		background: var(--ember-tint);
 		color: var(--ink);
 		font: 600 14px/1 var(--font-ui);
 		text-decoration: none;
 	}
 	.home:hover {
-		background: color-mix(in srgb, var(--ember) 20%, var(--chip-hover));
+		background: var(--ember-tint-strong);
 	}
 </style>

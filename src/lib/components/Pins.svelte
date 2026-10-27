@@ -76,7 +76,7 @@
 		border-radius: 50%;
 		background: var(--ember);
 		box-shadow:
-			0 0 0 3px color-mix(in srgb, var(--ember) 30%, transparent),
+			0 0 0 3px var(--ember-glow),
 			0 2px 6px rgba(0, 0, 0, 0.25);
 		opacity: 0;
 		transform: translateY(6px) scale(0.6);

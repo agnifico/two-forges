@@ -1,4 +1,4 @@
-# The "Interests and hobbies" bubbles, in the order they show. Each links to the stations it lives
+# The "Skills and Interests" bubbles, in the order they show. Each links to the stations it lives
 # in (station ids from config.ts, on either side of the island). One station: the bubble opens it.
 # Several: the camera frames them all and a card shows the blurb with a link to each. So a blurb
 # is only needed (and only shown) when an interest has several stations.

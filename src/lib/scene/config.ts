@@ -166,8 +166,12 @@ export const tours = {
 };
 
 export const cameraConfig = {
-	/** Isometric yaw: 45 puts the camera on the +x/+z diagonal. */
-	azimuthDeg: 45,
+	/**
+	 * The view the island opens on (and the placement tool's Iso view): turn (45 = the +x/+z
+	 * diagonal), tilt from straight down (54.74 = isometric; kept within tiltUpDeg/tiltDownDeg of
+	 * it), and pan of the view's centre from the island's. Read them off the dev panel's camera box.
+	 */
+	opening: { azimuthDeg: 73.8, polarDeg: 65.8, pan: [1.0, 0.2, -3.7] as Vec3 },
 	/** The tilt band (either side of isometric) that zoom 1 is framed to fit. */
 	tiltRangeDeg: 6,
 	/**
@@ -182,7 +186,7 @@ export const cameraConfig = {
 	 */
 	defaultZoom: 0.95,
 	/** Landscape screens open closer than that: the island fills the right, clear of the title on the left. */
-	landscapeZoom: 1.5,
+	landscapeZoom: 2,
 	minZoom: 0.7,
 	maxZoom: 3,
 	fitMargin: 1.05,

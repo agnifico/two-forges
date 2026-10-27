@@ -40,6 +40,25 @@
 				font-display: swap;
 			}
 		</style>
+		<!-- At night the page is built in day colours and only turns dark once the script runs. Until then,
+		     show plain night sky instead of a flash of cream. Same rule as isNight() in daylight.ts.
+		     The layout removes the class once it's up. -->
+		<script>
+			(function () {
+				var time = new URLSearchParams(location.search).get('time');
+				var hour = time !== null && isFinite(Number(time)) ? Number(time) : new Date().getHours();
+				var night = time === 'night' || (time !== 'day' && (hour >= 19 || hour < 6));
+				if (night) document.documentElement.classList.add('night');
+			})();
+		</script>
+		<style>
+			html.night {
+				background: #2b2850;
+			}
+			html.night body {
+				visibility: hidden;
+			}
+		</style>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">

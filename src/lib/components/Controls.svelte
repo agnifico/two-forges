@@ -1,4 +1,4 @@
-<!-- The site's few controls. Interests and hobbies, the one labelled thing, sits alone at the bottom of
+<!-- The site's few controls. Skills and Interests, the one labelled thing, sits alone at the bottom of
      the island and opens a row of bubbles above it. The simplified version, flip (only where the War Forge
      is in play) and day/night are bare icons in the top-right corner, left for the curious to find out. On phones the corner folds into one round
      button: open, the music player fans out to its left and flip and day/night drop below it. It starts
@@ -53,7 +53,7 @@
 
 	const sideOf = (interest: Interest) => stations.find((s) => s.station === interest.stations[0])?.side;
 
-	/** Interests and hobbies beckons until it has been opened once. */
+	/** Skills and Interests beckons until it has been opened once. */
 	let opened = $state(false);
 	$effect(() => {
 		if (open) opened = true;
@@ -88,7 +88,7 @@
 
 <div class="controls" bind:clientHeight={height}>
 	{#if open}
-		<ul class="bubbles" id="interest-list" aria-label="Interests and hobbies">
+		<ul class="bubbles" id="interest-list" aria-label="Skills and Interests">
 			{#each bubbles as { interest, side }, i (interest.id)}
 				<li style:--i={i}>
 					<button
@@ -212,7 +212,7 @@
 		align-items: center;
 		gap: 8px;
 	}
-	/* The side you're on, beside Interests and hobbies: a small tag with an ember dot. */
+	/* The side you're on, beside Skills and Interests: a small tag with an ember dot. */
 	.where {
 		display: flex;
 		align-items: center;
@@ -248,20 +248,20 @@
 	.pill:hover:not(:disabled) {
 		background: var(--chip-hover);
 	}
-	/* Interests and hobbies: the one labelled control, and the way in. */
+	/* Skills and Interests: the one labelled control, and the way in. */
 	.primary {
 		min-height: 40px;
 		padding: 0 18px 0 15px;
-		border-color: color-mix(in srgb, var(--ember) 60%, transparent);
-		background: color-mix(in srgb, var(--ember) 12%, var(--chip));
+		border-color: var(--ember-line);
+		background: var(--ember-tint);
 		font-size: 14px;
 		font-weight: 600;
 		box-shadow:
-			0 4px 18px color-mix(in srgb, var(--ember) 22%, transparent),
+			0 4px 18px var(--ember-glow),
 			0 4px 14px rgba(40, 25, 10, 0.1);
 	}
 	.primary:hover:not(:disabled) {
-		background: color-mix(in srgb, var(--ember) 20%, var(--chip-hover));
+		background: var(--ember-tint-strong);
 	}
 	.primary svg:first-child {
 		color: var(--ember-ink);
@@ -275,7 +275,7 @@
 	@keyframes beckon {
 		0% {
 			box-shadow:
-				0 0 0 0 color-mix(in srgb, var(--ember) 45%, transparent),
+				0 0 0 0 var(--ember-glow),
 				0 4px 14px rgba(40, 25, 10, 0.1);
 		}
 		70%,
@@ -285,11 +285,11 @@
 				0 4px 14px rgba(40, 25, 10, 0.1);
 		}
 	}
-	/* Interests and hobbies, while its bubbles are out. */
+	/* Skills and Interests, while its bubbles are out. */
 	.pill[aria-expanded='true'],
 	.pill[aria-expanded='true']:hover:not(:disabled) {
 		border-color: var(--ember);
-		background: color-mix(in srgb, var(--ember) 20%, var(--chip));
+		background: var(--ember-tint-strong);
 	}
 	.pill[aria-expanded='true'] svg:first-child {
 		fill: var(--ember);
@@ -355,7 +355,7 @@
 		height: 6px;
 		border-radius: 50%;
 		background: var(--ember);
-		box-shadow: 0 0 0 3px color-mix(in srgb, var(--ember) 25%, transparent);
+		box-shadow: 0 0 0 3px var(--ember-glow);
 	}
 	.sr {
 		position: absolute;
@@ -391,22 +391,22 @@
 	}
 	.bubbles button.active {
 		border-color: var(--ember);
-		background: color-mix(in srgb, var(--ember) 22%, var(--chip));
-		box-shadow: 0 0 0 2px color-mix(in srgb, var(--ember) 35%, transparent);
+		background: var(--ember-tint-strong);
+		box-shadow: 0 0 0 2px var(--ember-glow);
 	}
 	/* The War Forge's bubbles, a bonus once it's been found: the same set, in the empire's red. */
 	.bubbles button.bonus {
-		border-color: color-mix(in srgb, var(--bonus) 40%, transparent);
-		background: color-mix(in srgb, var(--bonus) 9%, var(--chip));
+		border-color: var(--bonus-line);
+		background: var(--bonus-tint);
 		color: var(--bonus-ink);
 	}
 	.bubbles button.bonus:hover {
-		background: color-mix(in srgb, var(--bonus) 16%, var(--chip-hover));
+		background: var(--bonus-tint-strong);
 	}
 	.bubbles button.bonus.active {
 		border-color: var(--bonus);
-		background: color-mix(in srgb, var(--bonus) 22%, var(--chip));
-		box-shadow: 0 0 0 2px color-mix(in srgb, var(--bonus) 35%, transparent);
+		background: var(--bonus-tint-strong);
+		box-shadow: 0 0 0 2px var(--bonus-line);
 	}
 
 	/* Secrets found: the side tag's twin, with a spark that flares as a new one comes in. */
@@ -450,7 +450,7 @@
 			bottom: calc(var(--sheet, 0px) + var(--foot, 0px) + 12px);
 			transition: bottom 0.35s ease-out;
 		}
-		/* A tighter tag, so it fits beside Interests and hobbies from 360px up (it wraps below on narrower). */
+		/* A tighter tag, so it fits beside Skills and Interests from 360px up (it wraps below on narrower). */
 		.bar {
 			gap: 6px;
 		}

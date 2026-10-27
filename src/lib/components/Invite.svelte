@@ -77,7 +77,7 @@
 	 * the air below it. It pops out of the roof, then bobs gently.
 	 */
 	.bubble {
-		--edge: color-mix(in srgb, var(--paper) 72%, var(--ember) 28%);
+		--edge: var(--bubble-edge);
 		position: relative;
 		padding: 12px 16px 11px;
 		border-radius: 16px;

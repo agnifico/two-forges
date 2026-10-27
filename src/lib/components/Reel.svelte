@@ -92,7 +92,7 @@
 		width: 32px;
 		height: 32px;
 		border-radius: 50%;
-		background: color-mix(in srgb, var(--paper) 88%, transparent);
+		background: var(--chip);
 		box-shadow: 0 2px 8px rgba(40, 25, 10, 0.25);
 	}
 	.play svg {

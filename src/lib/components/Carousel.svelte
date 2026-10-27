@@ -135,7 +135,7 @@
 		padding: 0;
 		border: 1px solid var(--line);
 		border-radius: 50%;
-		background: color-mix(in srgb, var(--paper) 88%, transparent);
+		background: var(--chip);
 		color: var(--ink);
 		cursor: pointer;
 		translate: 0 -50%;

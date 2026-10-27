@@ -41,9 +41,9 @@
 	/** Desktop, with a card open: how much of its width the island is framed clear of (it may tuck under the rest). */
 	const CARD_INSET = 0.7;
 	/** Desktop, at home: how far right of centre the island sits (twice its share of the width), clear of the title. */
-	const HOME_SHIFT = 0.08;
+	const HOME_SHIFT = 0.3;
 	/** Desktop, at home: how far below centre the island sits (share of the half-height), so the cottage clears the top. */
-	const HOME_DROP = 0.22;
+	const HOME_DROP = .4;
 
 	let { data, children }: LayoutProps = $props();
 
@@ -143,7 +143,7 @@
 		if (open || chosen) inviting = false;
 	});
 
-	/** Secrets found in this browser, counted under Interests and hobbies once there's one. */
+	/** Secrets found in this browser, counted under Skills and Interests once there's one. */
 	let found = $state<string[]>([]);
 	onMount(() => {
 		try {
@@ -198,6 +198,9 @@
 	$effect(() =>
 		view.setInset(phone ? 0 : home ? -Math.round(innerWidth * HOME_SHIFT) : Math.round(columnWidth * CARD_INSET))
 	);
+
+	// The night guard in app.html can come off: the island has set the page's colours by now.
+	onMount(() => document.documentElement.classList.remove('night'));
 
 	onMount(() => {
 		const query = matchMedia(PHONE);
@@ -317,8 +320,7 @@
 <svelte:head>
 	<!--
 	  The tab icon is the mark alone, following the browser's light or dark look. No PNG icon beside it:
-	  browsers prefer a sized PNG and swap to it after load. The red tile is only for home screens
-	  (static/favicon-32.png is kept as a spare, unused).
+	  browsers prefer a sized PNG and swap to it after load. The red tile is only for home screens.
 	-->
 	<link rel="icon" href={favicon} type="image/svg+xml" />
 	<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -383,6 +385,8 @@
 				<span class="lead">{@html data.site.heroLead}</span>
 				{#if data.site.heroRest}<span class="rest">{@html data.site.heroRest}</span>{/if}
 			</svelte:element>
+			<!-- The plain one-page version, offered up front, at the door and after. -->
+			<a class="simple" href="/simplified">Check out a simplified version →</a>
 			{#if !entered}
 				<div class="way-in" out:fade={{ duration: 250 }}>
 					<div class="sound-wrap">
@@ -392,7 +396,9 @@
 						</button>
 						<p class="why">Sound on for the best experience</p>
 					</div>
-					{#if view.shown}
+					{#if view.failed}
+						<a class="enter" href="/simplified">Simplified version</a>
+					{:else if view.shown}
 						<button class="enter" onclick={enter} use:focusIt in:fade={{ duration: 400 }}>Enter</button>
 					{:else}
 						<span class="bar" role="status" aria-label="Loading the island" class:waiting={view.progress === 0}>
@@ -449,10 +455,19 @@
 		--chip-hover: #fffaf1;
 		--ember: #e8893f;
 		--ember-ink: #b85c1c;
-		--mark: color-mix(in srgb, var(--ember) 38%, transparent);
+		--mark: rgba(232, 137, 63, 0.38);
+		/* Orange accents: borders, glows, and chip backgrounds with a hint of orange. */
+		--ember-line: rgba(232, 137, 63, 0.6);
+		--ember-glow: rgba(232, 137, 63, 0.35);
+		--ember-tint: #fcecdc;
+		--ember-tint-strong: #fae3cd;
+		--bubble-edge: #f9dabf;
 		/* The War Forge's bonus bubbles: the empire's red. */
 		--bonus: #b3343f;
 		--bonus-ink: #93262f;
+		--bonus-line: rgba(179, 52, 63, 0.4);
+		--bonus-tint: #f8e8e1;
+		--bonus-tint-strong: #f3dad5;
 
 		position: fixed;
 		inset: 0;
@@ -471,9 +486,17 @@
 		--chip-hover: #3d3562;
 		--ember: #f2a25c;
 		--ember-ink: #ffbe82;
-		--mark: color-mix(in srgb, var(--ember) 62%, transparent);
+		--mark: rgba(242, 162, 92, 0.62);
+		--ember-line: rgba(242, 162, 92, 0.6);
+		--ember-glow: rgba(242, 162, 92, 0.35);
+		--ember-tint: #4b3b55;
+		--ember-tint-strong: #614b61;
+		--bubble-edge: #664c4f;
 		--bonus: #ff7a86;
 		--bonus-ink: #ffb3ba;
+		--bonus-line: rgba(255, 122, 134, 0.4);
+		--bonus-tint: #463459;
+		--bonus-tint-strong: #5c4068;
 	}
 
 	.column {
@@ -515,7 +538,7 @@
 		text-shadow:
 			0 0 2px var(--sky),
 			0 0 10px var(--sky),
-			0 0 22px color-mix(in srgb, var(--sky) 70%, transparent);
+			0 0 22px var(--sky);
 	}
 	.title {
 		width: fit-content;
@@ -563,6 +586,24 @@
 		font-size: clamp(24px, 2.3vw, 34px);
 		white-space: normal;
 		animation: rise 0.9s 0.35s ease-out both;
+	}
+	.simple {
+		display: inline-block;
+		margin-top: 8px;
+		color: var(--ember-ink);
+		font: 13px/1.4 var(--font-ui);
+		text-decoration: underline;
+		text-decoration-color: var(--ember-line);
+		text-underline-offset: 3px;
+		pointer-events: auto;
+	}
+	.simple:hover {
+		text-decoration-color: currentColor;
+	}
+	.door .simple {
+		margin-top: 16px;
+		font-size: 15px;
+		animation: rise 0.9s 0.6s ease-out both;
 	}
 	.way-in {
 		display: flex;
@@ -640,15 +681,16 @@
 		letter-spacing: 0.16em;
 		text-transform: uppercase;
 		text-shadow: none;
+		text-decoration: none;
 		cursor: pointer;
-		box-shadow: 0 8px 24px color-mix(in srgb, var(--ember) 40%, transparent);
+		box-shadow: 0 8px 24px var(--ember-glow);
 		transition:
 			transform 0.15s,
 			box-shadow 0.15s;
 	}
 	.enter:hover {
 		transform: translateY(-1px);
-		box-shadow: 0 10px 28px color-mix(in srgb, var(--ember) 55%, transparent);
+		box-shadow: 0 10px 28px var(--ember-line);
 	}
 	/* Loading: a thin bar where the Enter button will be. */
 	.bar {
@@ -687,10 +729,48 @@
 			transform: translateY(10px);
 		}
 	}
+	/* At the door: a veil behind the title, fading into the island. Cream by day, deep purple by night.
+	   From the left on desktop, from the bottom on phones. */
 	.cover {
 		position: absolute;
 		inset: 0;
 		z-index: 1;
+		background: linear-gradient(
+			to right,
+			rgba(243, 234, 216, 0.95),
+			rgba(243, 234, 216, 0.9) 20%,
+			rgba(243, 234, 216, 0.55) 34%,
+			transparent 50%
+		);
+	}
+	.dark .cover {
+		background: linear-gradient(
+			to right,
+			rgba(33, 25, 52, 0.95),
+			rgba(33, 25, 52, 0.9) 20%,
+			rgba(33, 25, 52, 0.55) 34%,
+			transparent 50%
+		);
+	}
+	@media (max-width: 760px) {
+		.cover {
+			background: linear-gradient(
+				to top,
+				rgba(243, 234, 216, 0.95),
+				rgba(243, 234, 216, 0.88) 22%,
+				rgba(243, 234, 216, 0.5) 36%,
+				transparent 50%
+			);
+		}
+		.dark .cover {
+			background: linear-gradient(
+				to top,
+				rgba(33, 25, 52, 0.95),
+				rgba(33, 25, 52, 0.88) 22%,
+				rgba(33, 25, 52, 0.5) 36%,
+				transparent 50%
+			);
+		}
 	}
 	@media (max-width: 760px) {
 		.hero {
@@ -726,6 +806,7 @@
 	@media (prefers-reduced-motion: reduce) {
 		.door .lead,
 		.door .rest,
+		.door .simple,
 		.way-in,
 		.bar.waiting > span {
 			animation: none;
@@ -766,7 +847,7 @@
 			padding: 26px 28px 28px;
 			border: 1px solid var(--line);
 			border-radius: 18px;
-			background: color-mix(in srgb, var(--paper) 97%, transparent);
+			background: var(--paper);
 			box-shadow: 0 12px 40px rgba(40, 25, 10, 0.16);
 			animation: card-in 0.3s ease-out;
 		}
@@ -867,10 +948,6 @@
 		.shell.sheet {
 			--sheet: calc(var(--sheet-share) * 100svh);
 		}
-		/* At home the controls ride a little higher, leaving a line below for the simplified link. */
-		.shell.home {
-			--foot: 30px;
-		}
 		.column {
 			position: absolute;
 			left: 0;
@@ -882,8 +959,7 @@
 			background: linear-gradient(
 				to bottom,
 				transparent,
-				color-mix(in srgb, var(--sky) 72%, transparent) 30vh,
-				color-mix(in srgb, var(--sky) 92%, transparent)
+				var(--sky) 34vh
 			);
 			pointer-events: none;
 			transition: padding-bottom 0.3s ease-out;

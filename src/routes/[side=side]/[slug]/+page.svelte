@@ -34,7 +34,7 @@
 	<a class="close" href={homeHref()} aria-label="Close">
 		<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
 	</a>
-	<!-- No eyebrow: the side shows beside Interests and hobbies, and the label (still in the content) in the interest card's list. -->
+	<!-- No eyebrow: the side shows beside Skills and Interests, and the label (still in the content) in the interest card's list. -->
 	<h1 id="station-title" tabindex="-1" bind:this={heading}>{s.title}</h1>
 	{#if s.introHtml}<p class="intro">{@html s.introHtml}</p>{/if}
 
