@@ -42,6 +42,7 @@
 			Scroll to zoom
 		</li>
 	</ul>
+	<a class="credits" href="/credits">Credits</a>
 </div>
 {/if}
 
@@ -82,6 +83,16 @@
 		fill: var(--ember);
 		stroke: none;
 	}
+	.credits {
+		font: 11.5px/1 var(--font-ui);
+		color: inherit;
+		text-decoration: underline;
+		text-decoration-color: rgba(239, 230, 216, 0.5);
+		text-underline-offset: 3px;
+	}
+	.credits:hover {
+		text-decoration-color: currentColor;
+	}
 	@media (pointer: coarse) {
 		.mouse {
 			display: none;
@@ -90,7 +101,7 @@
 
 	/*
 	 * Desktop: no column at home. The legend sits in the bottom-right corner on a dark panel, so it reads
-	 * over grass and rock, day or night.
+	 * over grass and rock, day or night (dark enough for 4.5:1 even over the cream sky).
 	 */
 	@media (min-width: 761px) {
 		.how {
@@ -100,7 +111,7 @@
 			bottom: 36px;
 			padding: 8px 12px;
 			border-radius: 12px;
-			background: rgba(30, 24, 20, 0.55);
+			background: rgba(30, 24, 20, 0.68);
 			color: #efe6d8;
 		}
 	}

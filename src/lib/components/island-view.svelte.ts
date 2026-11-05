@@ -2,15 +2,32 @@
 // framed. Wraps the world (scene), the pointing layer and the camera moves behind a few reactive
 // fields and calls that the layout drives from the URL.
 
-import { Color, DefaultLoadingManager } from 'three';
+// Nothing here imports three.js directly: the scene (engine.ts) loads on its own once the page is up.
+
+import type { Color } from 'three';
+import { chooseTime, isNight } from '../scene/clock';
 import { tours, type StationId } from '../scene/config';
-import { chooseTime, isNight } from '../scene/daylight';
-import { createFocus, prefersReducedMotion, type Focus } from '../scene/focus';
-import { createInteraction, type Interaction, type Pick, type SecretTarget } from '../scene/interaction';
+import type { Focus } from '../scene/focus';
+import type { Interaction, Pick, SecretTarget } from '../scene/interaction';
 import { sides, type SideId } from '../scene/sides';
-import { createTour, type Tour } from '../scene/tour';
+import type { Tour } from '../scene/tour';
+import type { World, WorldHandles } from '../scene/world';
 import { music } from './music.svelte';
-import { createWorld, type World, type WorldHandles } from '../scene/world';
+
+type Engine = typeof import('../scene/engine');
+type MountOptions = { start: SideId; secrets: SecretTarget[]; onPick: (pick: Pick | null) => void };
+
+const prefersReducedMotion = () =>
+	typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/** Relative luminance of a #rrggbb colour. */
+function luminance(hex: string) {
+	const [r, g, b] = [1, 3, 5].map((i) => {
+		const c = parseInt(hex.slice(i, i + 2), 16) / 255;
+		return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+	});
+	return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
 
 /** Below this relative luminance (mid grey is about 0.2) the page's text turns light. */
 const DARK_SKY = 0.18;
@@ -32,6 +49,8 @@ export class IslandView {
 	heading = $state<SideId>('forge');
 	canFlip = $state(false);
 	flipping = $state(false);
+	/** The other side is downloading for a flip (it loads only when first wanted). */
+	loadingSide = $state(false);
 	night = $state(false);
 	/** Night (or day) was the visitor's own pick, not the clock's or the war side's. */
 	nightChosen = $state(false);
@@ -48,16 +67,43 @@ export class IslandView {
 	#lift = 0;
 	#inset = 0;
 	#frames = new Set<() => void>();
-	#skyColor = new Color();
+	#skyHex = '';
+	/** The other side was asked for before the scene had loaded. */
+	#warmWanted = false;
 
 	/** Builds the world on `canvas`, starting on `start` (a deep link to the war side flips first). */
-	mount(
-		canvas: HTMLCanvasElement,
-		{ start, secrets, onPick }: { start: SideId; secrets: SecretTarget[]; onPick: (pick: Pick | null) => void }
-	) {
+	mount(canvas: HTMLCanvasElement, options: MountOptions) {
 		let disposed = false;
+		let stop = () => {};
 		this.night = isNight();
-		this.#setSky(new Color(sides.forge.colors[this.night ? 'backgroundNight' : 'background']));
+		this.#setSky(sides.forge.colors[this.night ? 'backgroundNight' : 'background']);
+		import('../scene/engine')
+			.then((engine) => {
+				if (!disposed) stop = this.#start(engine, canvas, options, () => disposed);
+			})
+			.catch((err) => {
+				console.error('The island could not be loaded.', err);
+				this.failed = true;
+			});
+		return () => {
+			disposed = true;
+			stop();
+		};
+	}
+
+	/** Loads the other side ahead of a flip (the flip button's hover, /all); harmless if already in. */
+	warmFlip() {
+		if (this.world) this.world.prepareFlip();
+		else this.#warmWanted = true;
+	}
+
+	#start(
+		{ DefaultLoadingManager, createWorld, createInteraction, createFocus, createTour }: Engine,
+		canvas: HTMLCanvasElement,
+		{ start, secrets, onPick }: MountOptions,
+		isDisposed: () => boolean
+	) {
+		let disposed = isDisposed();
 
 		// GLTFLoader reports to the default manager when it's given none (props.ts gives none).
 		const previousProgress = DefaultLoadingManager.onProgress;
@@ -75,15 +121,17 @@ export class IslandView {
 			return () => {};
 		}
 		this.world = world;
+		if (this.#warmWanted) world.prepareFlip();
 		world.onSideChange((side) => (this.side = this.heading = side));
-		world.flipReady.then((ready) => (this.canFlip = ready));
 		world.ready.then(async (handles) => {
 			if (disposed) return;
 			if (!handles) {
 				this.failed = true;
 				return;
 			}
-			if (start !== world.current() && (await world.flipReady) && !disposed && start !== world.current()) {
+			// The other side loads when first wanted, so a flip is always on offer once the island is in.
+			this.canFlip = true;
+			if (start !== world.current() && (await world.prepareFlip()) && !disposed && start !== world.current()) {
 				await world.flip({ instant: true });
 			}
 			if (disposed) return;
@@ -101,8 +149,11 @@ export class IslandView {
 		let raf = 0;
 		const tick = () => {
 			raf = requestAnimationFrame(tick);
-			const background = this.handles?.scene.background;
-			if (background instanceof Color && !background.equals(this.#skyColor)) this.#setSky(background);
+			const background = this.handles?.scene.background as Color | null | undefined;
+			if (background?.isColor) {
+				const hex = `#${background.getHexString()}`;
+				if (hex !== this.#skyHex) this.#setSky(hex);
+			}
 			for (const frame of this.#frames) frame();
 		};
 		raf = requestAnimationFrame(tick);
@@ -143,8 +194,14 @@ export class IslandView {
 		if (!world) return;
 		if (this.#flip) return this.#flip;
 		this.#flip = (async () => {
-			if (!(await world.flipReady)) return;
 			this.flipping = true;
+			this.loadingSide = true;
+			const ready = await world.prepareFlip();
+			this.loadingSide = false;
+			if (!ready) {
+				this.flipping = false;
+				return;
+			}
 			const to: SideId = world.current() === 'forge' ? 'war' : 'forge';
 			// Ease back out to the overview first, so the turn starts from the whole island.
 			await this.#tour?.settle();
@@ -212,18 +269,17 @@ export class IslandView {
 		await this.#tour?.settle();
 		if (this.#want !== want) return;
 		while (want.side !== world.current()) {
-			if (!mayFlip || !(await world.flipReady)) return;
+			if (!mayFlip) return;
+			const was = world.current();
 			await this.flip();
-			if (this.#want !== want) return;
+			if (this.#want !== want || world.current() === was) return;
 		}
 		this.#focus.frame(want.stations.flatMap((id) => interaction.stationBox(id) ?? []));
 	}
 
-	#setSky(color: Color) {
-		this.#skyColor.copy(color);
-		this.sky = `#${color.getHexString()}`;
-		// Colour components are linear, which is what relative luminance wants.
-		const { r, g, b } = color;
-		this.dark = 0.2126 * r + 0.7152 * g + 0.0722 * b < DARK_SKY;
+	#setSky(hex: string) {
+		this.#skyHex = hex;
+		this.sky = hex;
+		this.dark = luminance(hex) < DARK_SKY;
 	}
 }

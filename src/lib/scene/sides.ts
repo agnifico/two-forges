@@ -142,7 +142,8 @@ export const forgeSide: SideConfig = {
 		'waterwheel',
 		'readingCorner',
 		'workbench',
-		'vendingMachine'
+		'vendingMachine',
+		'rubiksCube'
 	],
 	layout: forgeLayout,
 	wallRuns: [],

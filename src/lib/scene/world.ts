@@ -58,8 +58,8 @@ export interface WorldHandles {
 export interface World {
 	/** Resolves once the forge is in and rendering has started (undefined if disposed first). */
 	ready: Promise<WorldHandles | undefined>;
-	/** Resolves true once the other side has loaded in the background and the island can flip. */
-	flipReady: Promise<boolean>;
+	/** Loads the other side (once, on first call) and resolves true when the island can flip. */
+	prepareFlip(): Promise<boolean>;
 	/** Turns the island over. `instant` skips the animation (dev reloads); `seconds` sets its pace. */
 	flip(options?: { instant?: boolean; seconds?: number }): Promise<void>;
 	/** The side that's up. */
@@ -70,8 +70,8 @@ export interface World {
 
 /**
  * Builds the scene on `canvas`. The forge side builds and loads first; rendering starts once its
- * models are in, so the camera fit includes them. The war side then loads in the background, hidden,
- * and flip() turns the island over to show it. Call dispose() to tear everything down.
+ * models are in, so the camera fit includes them. The war side loads only when prepareFlip() asks for
+ * it, hidden, and flip() turns the island over to show it. Call dispose() to tear everything down.
  */
 export function createWorld(canvas: HTMLCanvasElement): World {
 	const materials = createMaterials();
@@ -115,10 +115,10 @@ export function createWorld(canvas: HTMLCanvasElement): World {
 			return undefined;
 		});
 
-	// The war side loads only after the forge is showing, so it never slows the first view.
-	const flipReady = ready.then(async (handles) => {
+	// The war side loads only when asked for (a flip, a link to it, /all), so most visits never fetch it.
+	let warReady: Promise<boolean> | undefined;
+	const prepareFlip = () => (warReady ??= ready.then(async (handles) => {
 		if (!handles || disposed) return false;
-		await new Promise((r) => setTimeout(r, 300));
 		const war = await buildSide('war', materials, createRng(SEED + 1)).catch((err) => {
 			console.error('The war side could not be built.', err);
 			return undefined;
@@ -135,7 +135,7 @@ export function createWorld(canvas: HTMLCanvasElement): World {
 		stage.addTicker((time, night) => war.root.visible && war.props.tick(time, night));
 		watchMirror(war);
 		return true;
-	});
+	}));
 
 	/**
 	 * The Seventh Floor's mirror: captured with only its side showing (and no sky), and again
@@ -176,7 +176,7 @@ export function createWorld(canvas: HTMLCanvasElement): World {
 
 	return {
 		ready,
-		flipReady,
+		prepareFlip,
 		flip,
 		current: () => up,
 		onSideChange(listener) {

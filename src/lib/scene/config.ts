@@ -171,7 +171,7 @@ export const cameraConfig = {
 	 * diagonal), tilt from straight down (54.74 = isometric; kept within tiltUpDeg/tiltDownDeg of
 	 * it), and pan of the view's centre from the island's. Read them off the dev panel's camera box.
 	 */
-	opening: { azimuthDeg: 73.8, polarDeg: 65.8, pan: [1.0, 0.2, -3.7] as Vec3 },
+	opening: { azimuthDeg: 62.17, polarDeg: 68.96, pan: [1.26, 1.93, -3.99] as Vec3 },
 	/** The tilt band (either side of isometric) that zoom 1 is framed to fit. */
 	tiltRangeDeg: 6,
 	/**
@@ -186,7 +186,7 @@ export const cameraConfig = {
 	 */
 	defaultZoom: 0.95,
 	/** Landscape screens open closer than that: the island fills the right, clear of the title on the left. */
-	landscapeZoom: 2,
+	landscapeZoom: 1.97,
 	minZoom: 0.7,
 	maxZoom: 3,
 	fitMargin: 1.05,
@@ -449,6 +449,7 @@ export type StationId =
 	| 'readingCorner'
 	| 'workbench'
 	| 'vendingMachine'
+	| 'rubiksCube'
 	// War side
 	| 'keep'
 	| 'arena'
@@ -484,6 +485,7 @@ export const slots: SlotConfig[] = [
 	{ id: 'readingCorner', tier: 'middle', radius: 1.6 },
 	{ id: 'workbench', tier: 'middle', radius: 1.6 },
 	{ id: 'vendingMachine', tier: 'middle', radius: 1 },
+	{ id: 'rubiksCube', tier: 'middle', radius: 1 },
 	{ id: 'hero', tier: 'keep', radius: 1 },
 	{ id: 'market', tier: 'floor', radius: 1.6 },
 	{ id: 'arenaTree', tier: 'arena-sand', radius: 1.2 }
@@ -534,8 +536,9 @@ export type PackId =
 	| 'castle-kit'
 	| 'mini-arena'
 	| 'furniture-kit'
-	// Not Kenney (an approved exception, see CREDITS.md): in static/models/other.
-	| 'hero';
+	// Not Kenney (approved exceptions, see CREDITS.md): in static/models/other.
+	| 'hero'
+	| 'rubiks-cube';
 
 /**
  * Repaints a block of a Kenney colour map (a grid of swatches; pixels from its top-left) in one
@@ -630,7 +633,9 @@ export const packs: Record<PackId, PackConfig> = {
 	'mini-arena': { personHeight: 0.773, library: 'kenney_mini-arena' },
 	'furniture-kit': { personHeight: 0.858, library: 'kenney_furniture-kit', previews: 'Isometric/{file}_SW.png' },
 	// The war side's central character. Person height: its full height (it's modelled 431 units tall).
-	hero: { personHeight: 431, dir: 'models/other', painted: true }
+	hero: { personHeight: 431, dir: 'models/other', painted: true },
+	// Sketchfab low-poly cube, 2 units a side: a person-height of 3.5 makes it 1.6 world units, a giant toy.
+	'rubiks-cube': { personHeight: 3.5, dir: 'models/other', painted: true }
 };
 
 export type Vec3 = readonly [x: number, y: number, z: number];
@@ -762,6 +767,12 @@ export const stationModels: StationModelConfig[] = [
 	{
 		station: 'vendingMachine',
 		props: [{ kind: 'vending-machine' }]
+	},
+	{
+		// Solve the Cube: a giant Rubik's cube on the grass. Its origin is its centre, so it's raised
+		// by half its side.
+		station: 'rubiksCube',
+		props: [{ pack: 'rubiks-cube', file: 'rubiks-cube', offset: [0, 0.8, 0] }]
 	}
 ];
 

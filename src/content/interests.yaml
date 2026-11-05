@@ -30,7 +30,7 @@
 
 - id: engineering
   label: Engineering
-  stations: [waterwheel]
+  stations: [waterwheel, rubiksCube]
 
 - id: policy
   label: Policy

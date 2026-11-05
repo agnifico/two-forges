@@ -6,26 +6,12 @@
 // toggle (chooseTime) overrides both.
 
 import { Color, MathUtils, Vector3, type DirectionalLight, type HemisphereLight } from 'three';
+import { chosenTime, isNight } from './clock';
 import { lighting, palette } from './config';
 
 const EASE_MS = 3000;
 
-/** The visitor's pick from the day/night toggle; null follows ?time= or the clock. */
-let chosen: 'day' | 'night' | null = null;
-
-export function chooseTime(time: 'day' | 'night' | null) {
-	chosen = time;
-}
-
-/** Whether it's night: the visitor's pick, else ?time=, else their clock. */
-export function isNight() {
-	if (chosen) return chosen === 'night';
-	const param = new URLSearchParams(globalThis.location?.search ?? '').get('time');
-	if (param === 'night') return true;
-	if (param === 'day') return false;
-	const h = param !== null && Number.isFinite(Number(param)) ? Number(param) : new Date().getHours();
-	return h >= lighting.nightFrom || h < lighting.nightUntil;
-}
+export { chooseTime, isNight } from './clock';
 
 export type Daylight = ReturnType<typeof createDaylight>;
 
@@ -46,16 +32,16 @@ export function createDaylight(sun: DirectionalLight, hemi: HemisphereLight, tar
 	const state = { night: isNight() ? 1 : 0 };
 	let last = performance.now();
 	let lastCheck = 0;
-	let lastChosen = chosen;
+	let lastChosen = chosenTime();
 	let goal = state.night;
 
 	return {
 		state,
 		/** Eases towards the current hour's look and applies it to the sun (or moon) and sky light. */
 		update(now = performance.now()) {
-			if (now - lastCheck > 30_000 || chosen !== lastChosen) {
+			if (now - lastCheck > 30_000 || chosenTime() !== lastChosen) {
 				lastCheck = now;
-				lastChosen = chosen;
+				lastChosen = chosenTime();
 				goal = isNight() ? 1 : 0;
 			}
 			const step = (now - last) / EASE_MS;

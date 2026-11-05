@@ -268,6 +268,7 @@ export function createInteraction(
 	};
 
 	const projected = new Vector3();
+	const corner = new Vector3();
 
 	return {
 		/** Stations on the side that's up. */
@@ -277,6 +278,20 @@ export function createInteraction(
 		stationTop: (id: StationId) => topOf(stationBox(id)),
 		/** The point just above a secret's decor piece, for its note. */
 		secretTop: (id: string) => topOf(secretBox(id)),
+		/** A world box's outline in canvas pixels (CSS), from its eight corners; null if any is behind the camera. */
+		screenBox(box: Box3) {
+			let left = Infinity, right = -Infinity, top = Infinity, bottom = -Infinity;
+			for (let i = 0; i < 8; i++) {
+				corner.set(i & 1 ? box.max.x : box.min.x, i & 2 ? box.max.y : box.min.y, i & 4 ? box.max.z : box.min.z);
+				const at = this.toScreen(corner);
+				if (!at) return null;
+				left = Math.min(left, at.x);
+				right = Math.max(right, at.x);
+				top = Math.min(top, at.y);
+				bottom = Math.max(bottom, at.y);
+			}
+			return { left, right, top, bottom };
+		},
 		/** A world point in canvas pixels (CSS), or null if it's behind the camera. */
 		toScreen(point: Vector3) {
 			projected.copy(point).project(rig.camera);

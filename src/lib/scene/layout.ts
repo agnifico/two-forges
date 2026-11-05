@@ -16,7 +16,8 @@ export const layout: Layout = {
 		waterwheel: { at: [4.81, 12.37], rotationDeg: -139.63 },
 		readingCorner: { at: [6.12, -16.43], rotationDeg: 0 },
 		workbench: { at: [-10.21, 1.15], rotationDeg: -83.04 },
-		vendingMachine: { at: [-7.99, -4.82], rotationDeg: 43.1 }
+		vendingMachine: { at: [-7.99, -4.82], rotationDeg: 43.1 },
+		rubiksCube: { at: [-2.73, -8.59], rotationDeg: 50.07, lift: 1, scale: 0.5 }
 	},
 	decor: [
 		{ kind: 'pine', at: [-19.34, -5.77], rotationDeg: 88.37, scale: 1.1 },

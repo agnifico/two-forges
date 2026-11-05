@@ -40,7 +40,8 @@
 	});
 </script>
 
-<div class="stage">
+<!-- A named region, so the island's description, notes and controls sit in a landmark. -->
+<section class="stage" aria-label="The island">
 	<canvas bind:this={canvas} class:shown={view.shown} aria-hidden="true"></canvas>
 	<p class="sr">
 		A floating island: June's Forge{#if war} on one side, the War Forge on the other{/if}. Skills and Interests,
@@ -59,10 +60,16 @@
 				<span style:transform="scaleX({view.progress})"></span>
 			</span>
 		</div>
+	{:else if view.loadingSide}
+		<!-- The War Forge loads only when first flipped to: a cue while it comes in. -->
+		<div class="loading" role="status">
+			<span>To the empire of the sun…</span>
+			<span class="bar waiting"><span></span></span>
+		</div>
 	{/if}
 
 	{@render children?.()}
-</div>
+</section>
 
 {#if DevEditor && view.world}
 	<DevEditor world={view.world} />

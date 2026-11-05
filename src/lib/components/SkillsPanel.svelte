@@ -7,7 +7,8 @@
 <script lang="ts">
 	import { skillsTabs, type Skills, type SkillsTab } from '../content/types';
 
-	let { skills, open = 'glance' }: { skills: Skills; open?: SkillsTab } = $props();
+	/** level: the group headings' level, one below whatever heads the panel (h2 under a page's h1). */
+	let { skills, open = 'glance', level = 3 }: { skills: Skills; open?: SkillsTab; level?: 2 | 3 } = $props();
 
 	const names: Record<SkillsTab, { label: string; short: string }> = {
 		glance: { label: 'At a glance', short: 'Glance' },
@@ -103,7 +104,7 @@
 		<div class="panel" role="tabpanel" id="{uid}-stack" aria-labelledby="{uid}-stack-tab" hidden={current !== 'stack'} onscroll={measure}>
 			{#each skills.stack as group, g (group.title)}
 				<section class="group" aria-labelledby="{uid}-group-{g}">
-					<h3 id="{uid}-group-{g}"><span>{group.title}</span><span class="leader" aria-hidden="true"></span></h3>
+					<svelte:element this={`h${level}`} class="group-title" id="{uid}-group-{g}"><span>{group.title}</span><span class="leader" aria-hidden="true"></span></svelte:element>
 					<ul class="tags">
 						{#each group.tags as tag (tag.label)}
 							<li style:--tag={tag.color} style:--tag-ink={tag.text}>
@@ -309,13 +310,13 @@
 	.group + .group {
 		margin-top: 18px;
 	}
-	.group h3 {
+	.group .group-title {
 		display: flex;
 		align-items: baseline;
 		gap: 8px;
 		margin: 0 0 9px;
 		font: 600 11px/1.2 var(--_label);
-		letter-spacing: 0.12em;
+		letter-spacing: var(--sk-label-spacing, 0.12em);
 		text-transform: uppercase;
 		color: var(--_muted);
 	}

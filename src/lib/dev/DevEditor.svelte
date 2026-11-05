@@ -37,7 +37,7 @@
 		const handles = await world.ready;
 		if (!handles || destroyed) return;
 		// After a save on the war side, come back to it.
-		if (sessionStorage.getItem(SIDE_KEY) === 'war' && (await world.flipReady)) await world.flip({ instant: true });
+		if (sessionStorage.getItem(SIDE_KEY) === 'war' && (await world.prepareFlip())) await world.flip({ instant: true });
 		sessionStorage.removeItem(SIDE_KEY);
 		if (destroyed) return;
 		const follow = () => {

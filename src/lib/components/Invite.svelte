@@ -2,7 +2,6 @@
      its tail pointing back at the roof. It follows the cottage as the camera moves. The layout shows it
      at home and takes it away on the first click anywhere (this bubble included). -->
 <script lang="ts">
-	import { Vector3 } from 'three';
 	import { onMount } from 'svelte';
 	import type { IslandView } from './island-view.svelte';
 
@@ -20,7 +19,6 @@
 	let box: HTMLElement;
 	let placed = $state(false);
 	let touch = $state(false);
-	const corner = new Vector3();
 
 	onMount(() => {
 		touch = matchMedia('(pointer: coarse)').matches;
@@ -28,20 +26,10 @@
 			const cottage = view.interaction?.stationBox('cottage');
 			const stage = box.parentElement;
 			if (!cottage || !stage || !view.interaction) return void (placed = false);
-			// The cottage's outline on screen, from its box's eight corners.
-			let left = Infinity;
-			let right = -Infinity;
-			let top = Infinity;
-			let bottom = -Infinity;
-			for (let i = 0; i < 8; i++) {
-				corner.set(i & 1 ? cottage.max.x : cottage.min.x, i & 2 ? cottage.max.y : cottage.min.y, i & 4 ? cottage.max.z : cottage.min.z);
-				const at = view.interaction.toScreen(corner);
-				if (!at) return void (placed = false);
-				left = Math.min(left, at.x);
-				right = Math.max(right, at.x);
-				top = Math.min(top, at.y);
-				bottom = Math.max(bottom, at.y);
-			}
+			// The cottage's outline on screen.
+			const outline = view.interaction.screenBox(cottage);
+			if (!outline) return void (placed = false);
+			const { left, right, top, bottom } = outline;
 			const x = Math.min(Math.max(right - (right - left) * TUCK, MARGIN), stage.clientWidth - box.offsetWidth - MARGIN);
 			const y = Math.max(top + (bottom - top) * FOOT - box.offsetHeight, TOP_CLEAR);
 			box.style.transform = `translate(${x}px, ${y}px)`;

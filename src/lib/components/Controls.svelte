@@ -86,7 +86,7 @@
 	);
 </script>
 
-<div class="controls" bind:clientHeight={height}>
+<nav class="controls" aria-label="Skills and Interests" bind:clientHeight={height}>
 	{#if open}
 		<ul class="bubbles" id="interest-list" aria-label="Skills and Interests">
 			{#each bubbles as { interest, side }, i (interest.id)}
@@ -131,7 +131,7 @@
 			{/key}
 		{/if}
 	</div>
-</div>
+</nav>
 
 <svelte:window onpointerdown={onPointer} />
 
@@ -158,13 +158,23 @@
 					<rect x="13" y="11" width="7" height="9" rx="1.5" /><rect x="4" y="15" width="7" height="5" rx="1.5" />
 				</svg>
 			</a>
+			{#if compact}
+				<!-- Phones: the credits (desktop has a link under the controls legend). -->
+				<a class="pill round" href="/credits" aria-label="Credits" title="Credits">
+					<svg viewBox="0 0 24 24" aria-hidden="true">
+						<circle cx="12" cy="12" r="8.5" /><path d="M14.5 9.5a3.5 3.5 0 1 0 0 5" />
+					</svg>
+				</a>
+			{/if}
 			{#if view.canFlip && flippable}
 				<button
 					class="pill round"
 					onclick={onflip}
+					onpointerenter={() => view.warmFlip()}
+					onfocus={() => view.warmFlip()}
 					disabled={view.flipping}
 					aria-label={view.side === 'forge' ? `Flip to the ${sideNames.war}` : `Back to ${sideNames.forge}`}
-					aria-keyshortcuts="F"
+					aria-keyshortcuts="Shift+F"
 				>
 					<svg viewBox="0 0 24 24" aria-hidden="true">
 						<path d="M4 9a8 8 0 0 1 14-3l2 2M20 15a8 8 0 0 1-14 3l-2-2" />

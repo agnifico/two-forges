@@ -18,18 +18,23 @@ Models by [Kenney](https://www.kenney.nl), released under [CC0 1.0](http://creat
 
 ## Other models
 
-An approved exception to the Kenney-only rule: the war side's central character.
+Approved exceptions to the Kenney-only rule: the war side's central character, and the forge's Rubik's cube.
 
 - "Hero" (https://sketchfab.com/3d-models/hero-2e9bb3c86c38446d853f35808207058a) by silvercrow101 (https://sketchfab.com/silvercrow101), licensed under CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/). Repacked as one file.
+- "Rubik's Cube - Low Poly Puzzle Toy" (https://sketchfab.com/3d-models/rubiks-cube-low-poly-puzzle-toy-282dfe9b4eb845d68ec70267f0b137ae) by Vlaxled (https://sketchfab.com/Vo_plex), licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/). Repacked as one file.
 
 ## Fonts
 
-Self-hosted from `static/fonts/` (Latin subsets), under the [SIL Open Font License 1.1](https://openfontlicense.org).
+Self-hosted from `static/fonts/`.
 
-| Font | Used for |
-|---|---|
-| [Chakra Petch](https://github.com/cadsondemak/Chakra-Petch) by Cadson Demak | Interface: buttons, bubbles, labels, dates, the controls legend |
-| [Literata](https://github.com/googlefonts/literata) by TypeTogether | The serif (titles and text) where Iowan Old Style isn't installed (Android, Linux) |
+| Font | Licence | Used for |
+|---|---|---|
+| [Author](https://www.fontshare.com/fonts/author) by the Indian Type Foundry | [ITF Free Font License](https://www.fontshare.com/licenses/itf-ffl) (Fontshare) | Titles |
+| [Chakra Petch](https://github.com/cadsondemak/Chakra-Petch) by Cadson Demak | [SIL Open Font License 1.1](https://openfontlicense.org) | Interface: buttons, bubbles, labels, tags |
+| [Atkinson Hyperlegible Next](https://www.brailleinstitute.org/freefont/) by the Braille Institute | [SIL Open Font License 1.1](https://openfontlicense.org) | Text |
+| [Clash Grotesk](https://www.fontshare.com/fonts/clash-grotesk) by the Indian Type Foundry | [ITF Free Font License](https://www.fontshare.com/licenses/itf-ffl) (Fontshare) | The hero's second line |
+| [Switzer](https://www.fontshare.com/fonts/switzer) by the Indian Type Foundry | [ITF Free Font License](https://www.fontshare.com/licenses/itf-ffl) (Fontshare) | The door's sound switch and Enter |
+| [Tanker](https://www.fontshare.com/fonts/tanker) by the Indian Type Foundry | [ITF Free Font License](https://www.fontshare.com/licenses/itf-ffl) (Fontshare) | The wordmark |
 
 ## Sound effects
 

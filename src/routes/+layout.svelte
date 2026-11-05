@@ -279,6 +279,10 @@
 	 * stations, or with that side up (so there's a way back). Otherwise F and the signpost find it.
 	 */
 	const flippable = $derived(page.route.id === '/all' || open?.side === 'war' || view.side === 'war');
+	// /all is the link for showing the War Forge: load it up front there.
+	$effect(() => {
+		if (page.route.id === '/all') view.warmFlip();
+	});
 
 	const flip = async () => {
 		if (!view.canFlip || view.flipping) return;
@@ -304,7 +308,8 @@
 			return;
 		}
 		if ((e.target as HTMLElement).closest('input, textarea, select, [contenteditable]')) return;
-		if (e.key.toLowerCase() === 'f' && !e.metaKey && !e.ctrlKey && !e.altKey) flip();
+		// Shift+F, not a bare F: single-key shortcuts trip up speech input (WCAG 2.1.4).
+		if (e.key.toLowerCase() === 'f' && e.shiftKey && !e.metaKey && !e.ctrlKey && !e.altKey) flip();
 	};
 
 	afterNavigate(({ type, to }) => {
@@ -380,7 +385,7 @@
 		</header>
 
 		<!-- The title: big at the front door, then small under the wordmark on every page. -->
-		<div class="hero" class:door={!entered}>
+		<section class="hero" class:door={!entered} aria-label="Welcome">
 			<svelte:element this={page.route.id === '/' ? 'h1' : 'p'} class="title" bind:this={title}>
 				<span class="lead">{@html data.site.heroLead}</span>
 				{#if data.site.heroRest}<span class="rest">{@html data.site.heroRest}</span>{/if}
@@ -401,13 +406,21 @@
 					{:else if view.shown}
 						<button class="enter" onclick={enter} use:focusIt in:fade={{ duration: 400 }}>Enter</button>
 					{:else}
-						<span class="bar" role="status" aria-label="Loading the island" class:waiting={view.progress === 0}>
+						<span
+								class="bar"
+								role="progressbar"
+								aria-label="Loading the island"
+								aria-valuemin="0"
+								aria-valuemax="100"
+								aria-valuenow={Math.round(view.progress * 100)}
+								class:waiting={view.progress === 0}
+							>
 							<span style:transform="scaleX({view.progress})"></span>
 						</span>
 					{/if}
 				</div>
 			{/if}
-		</div>
+		</section>
 		<!-- Until then, the island can be seen but not touched. -->
 		{#if !entered}<div class="cover" aria-hidden="true" out:fade={{ duration: 250 }}></div>{/if}
 
@@ -441,20 +454,38 @@
 
 	.shell {
 		/*
-		 * Two faces: a bookish serif for names, titles and text, and Chakra Petch, a squared game face,
-		 * for everything you click or scan: buttons, bubbles, labels, keys and dates.
+		 * Author for titles; Atkinson Hyperlegible Next for text (built for legibility); Chakra Petch,
+		 * squared and sturdy, for everything you click or scan (buttons, bubbles, labels, tags); Clash Grotesk for the hero's
+		 * second line; Switzer for the door's buttons; Tanker for the wordmark alone.
 		 */
-		--font-display: 'Iowan Old Style', 'Palatino Linotype', Palatino, Literata, Georgia, serif;
-		--font-text: var(--font-display);
+		--font-display: 'Author', system-ui, -apple-system, 'Segoe UI', sans-serif;
+		--font-text: 'Atkinson Hyperlegible Next', system-ui, -apple-system, 'Segoe UI', sans-serif;
 		--font-ui: 'Chakra Petch', system-ui, -apple-system, 'Segoe UI', sans-serif;
+		--font-byline: 'Clash Grotesk', var(--font-display);
+		--font-button: 'Switzer', system-ui, sans-serif;
+		--font-accent: 'Tanker', var(--font-display);
+		/* Tracking for the skills panel's tabs and group headings. */
+		--sk-tab-spacing: 0.1em;
+		--sk-label-spacing: 0.12em;
+		/* The skills panel's open tab: filled maroon, white text (9.6:1). */
+		--tab-fill: #7b2d2d;
+		--tab-fill-ink: #ffffff;
+		/* Text (Atkinson Hyperlegible Next) spacing in cards, e.g. 0.01em and 0.05em; normal = the font's own. */
+		--text-tracking: normal;
+		--text-word-spacing: normal;
+		/* Tanker comes in one weight: no faux bold. */
+		font-synthesis: none;
+		/* Text colours clear WCAG AA (4.5:1) on the sky and the paper, day and night. */
 		--ink: #3b3128;
-		--muted: #7a6a5a;
+		--muted: #736455;
 		--line: rgba(60, 45, 30, 0.16);
 		--paper: #fffaf1;
 		--chip: rgba(255, 250, 241, 0.85);
 		--chip-hover: #fffaf1;
 		--ember: #e8893f;
-		--ember-ink: #b85c1c;
+		--ember-ink: #a05018;
+		/* The keyboard focus ring: the darker orange by day (the bright one is too faint on cream). */
+		--focus: var(--ember-ink);
 		/* Content emphasis: the ==highlight== band behind words, and the colour of **bold** words. */
 		--mark: rgba(255, 111, 0, 0.38);
 		--strong: #8f4a1d;
@@ -479,7 +510,15 @@
 		color: var(--ink);
 		font-family: var(--font-text);
 	}
-	.shell.dark {
+	/*
+	 * Night. html.night is set by app.html before the first paint and taken off once the island has set
+	 * the colours itself (.dark), so a night visit shows in night colours while the script still loads.
+	 */
+	:global(html.night) .shell {
+		--sky: #2b2850 !important;
+	}
+	.shell.dark,
+	:global(html.night) .shell {
 		--ink: #f1ebff;
 		--muted: #b7accf;
 		--line: rgba(230, 220, 255, 0.18);
@@ -488,6 +527,10 @@
 		--chip-hover: #3d3562;
 		--ember: #f2a25c;
 		--ember-ink: #ffbe82;
+		--focus: var(--ember);
+		/* Maroon disappears on the night paper: apricot, dark text. */
+		--tab-fill: #ffbe82;
+		--tab-fill-ink: #2b1a0e;
 		--mark: #c55757cb;
 		--strong: #ffcfa3;
 		--ember-line: rgba(242, 162, 92, 0.6);
@@ -518,14 +561,19 @@
 		display: inline-flex;
 		align-items: center;
 		gap: 0.32em;
-		font: 600 22px/1 var(--font-display);
+		font: 400 22px/1 var(--font-accent);
 		letter-spacing: 0.01em;
 		color: inherit;
 		color: white;
 		text-decoration: none;
-		background-color: hsla(0, 0%, 16%, 0.33);
+		/* Dark enough by day for white text on the cream sky (4.5:1); lighter at night, against the dark sky. */
+		background-color: hsla(0, 0%, 16%, 0.62);
 		padding: 8px 16px;
 		border-radius: calc(100vw - 100%);
+	}
+	.dark .wordmark,
+	:global(html.night) .wordmark {
+		background-color: hsla(0, 0%, 16%, 0.33);
 	}
 	main {
 		flex: 1;
@@ -562,6 +610,7 @@
 	.rest {
 		display: block;
 		margin-top: 4px;
+		font-family: var(--font-byline);
 		font-size: 14px;
 		font-weight: 500;
 		line-height: 1.2;
@@ -617,20 +666,22 @@
 		pointer-events: auto;
 		animation: rise 0.9s 0.8s ease-out both;
 	}
-	/* Off in red, on in green, with the nudge underneath. */
+	/* Off in red, on in green, with the nudge underneath (both 4.5:1 on the veil, day and night). */
 	.sound-wrap {
-		--sound: #d0433b;
+		--sound: #ba3c35;
 		display: flex;
 		flex-direction: column;
 		gap: 6px;
 	}
 	.sound-wrap:has([aria-checked='true']) {
-		--sound: #2f9e57;
+		--sound: #237742;
 	}
-	:global(.shell.dark) .sound-wrap {
+	:global(.shell.dark) .sound-wrap,
+	:global(html.night) .sound-wrap {
 		--sound: #ff6f66;
 	}
-	:global(.shell.dark) .sound-wrap:has([aria-checked='true']) {
+	:global(.shell.dark) .sound-wrap:has([aria-checked='true']),
+	:global(html.night) .sound-wrap:has([aria-checked='true']) {
 		--sound: #5fd38a;
 	}
 	.sound {
@@ -641,7 +692,7 @@
 		border: 0;
 		background: none;
 		color: var(--sound);
-		font: 600 14px/1.2 var(--font-ui);
+		font: 600 14px/1.2 var(--font-button);
 		text-shadow: inherit;
 		cursor: pointer;
 	}
@@ -680,7 +731,7 @@
 		border-radius: 999px;
 		background: var(--ember);
 		color: #2b1a0e;
-		font: 600 14px/1.2 var(--font-ui);
+		font: 600 14px/1.2 var(--font-button);
 		letter-spacing: 0.16em;
 		text-transform: uppercase;
 		text-shadow: none;
@@ -746,7 +797,8 @@
 			transparent 50%
 		);
 	}
-	.dark .cover {
+	.dark .cover,
+	:global(html.night) .cover {
 		background: linear-gradient(
 			to right,
 			rgba(33, 25, 52, 0.95),
@@ -765,7 +817,8 @@
 				transparent 50%
 			);
 		}
-		.dark .cover {
+		.dark .cover,
+		:global(html.night) .cover {
 			background: linear-gradient(
 				to top,
 				rgba(33, 25, 52, 0.95),
@@ -887,7 +940,7 @@
 	}
 	.column :global(.intro) {
 		margin: 0;
-		font: 19px/1.45 var(--font-display);
+		font: 500 19px/1.45 var(--font-text);
 	}
 	.column :global(.close) {
 		position: absolute;
@@ -914,8 +967,68 @@
 		stroke-width: 2;
 		stroke-linecap: round;
 	}
+	/*
+	 * Worn-square corners (trial, toward a pixel-art look): square things with their corners worn down,
+	 * the radius growing with the size of the thing. Fold into each component once settled.
+	 */
+	.wordmark {
+		border-radius: 12px !important;
+	}
+	.enter,
+	.shell :global(.pill),
+	.shell :global(.player) {
+		border-radius: 9px !important;
+	}
+	.shell :global(.close),
+	.shell :global(.player .icon) {
+		border-radius: 7px !important;
+	}
+	.shell :global(.bubbles button),
+	.shell :global(.misc button) {
+		border-radius: 6px !important;
+	}
+	.shell :global(.tags li),
+	.shell :global(.where) {
+		border-radius: 5px !important;
+	}
+	/* The sound switch is small enough to stay sharp. */
+	.knob,
+	.knob::after {
+		border-radius: 2px !important;
+	}
+
+	/* The skills panel's tabs (island only; /simplified keeps its underline): the rail becomes a fill
+	   that slides behind the open tab, its text inverted. */
+	.shell :global(.skills .tabs) {
+		border-bottom: 0;
+	}
+	.shell :global(.skills .tabs button) {
+		position: relative;
+		z-index: 1;
+		justify-content: center;
+		padding: 8px 4px;
+	}
+	.shell :global(.skills .tabs button[aria-selected='true']) {
+		color: var(--tab-fill-ink);
+	}
+	.shell :global(.skills .rail) {
+		top: 0;
+		bottom: 0;
+		height: auto;
+		border-radius: 6px;
+		background: var(--tab-fill);
+	}
+
+	/* Spacing for the text face (Atkinson Hyperlegible Next) in cards: try values here. Line heights are in the
+	   .intro rule above (1.45) and .prose in the station page (1.65). */
+	.column :global(.intro),
+	.column :global(.prose) {
+		letter-spacing: var(--text-tracking, normal);
+		word-spacing: var(--text-word-spacing, normal);
+	}
+
 	.shell :global(:focus-visible) {
-		outline: 2px solid var(--ember);
+		outline: 2px solid var(--focus);
 		outline-offset: 2px;
 	}
 	/* ==highlighted== text in content: a marker stroke behind the lower half of the words. */

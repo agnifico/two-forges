@@ -4,39 +4,114 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="text-scale" content="scale" />
-		<!-- Self-hosted fonts (OFL; see CREDITS.md): Chakra Petch for the interface. Literata stands in for
-		     the serif (titles and text) where Iowan Old Style isn't installed (it only loads there). -->
+		<!-- Self-hosted fonts (see CREDITS.md): Author for titles, Atkinson Hyperlegible Next for text,
+		     Chakra Petch for the interface, Clash Grotesk for the hero's second line, Switzer for the door's buttons, Tanker for the wordmark. -->
+		<link rel="preload" href="%sveltekit.assets%/fonts/author-600.woff2" as="font" type="font/woff2" crossorigin />
 		<link rel="preload" href="%sveltekit.assets%/fonts/chakra-petch-500.woff2" as="font" type="font/woff2" crossorigin />
 		<style>
+			@font-face {
+				font-family: 'Author';
+				src: url('%sveltekit.assets%/fonts/author-400.woff2') format('woff2');
+				font-weight: 400;
+				font-style: normal;
+				font-display: swap;
+			}
+			@font-face {
+				font-family: 'Author';
+				src: url('%sveltekit.assets%/fonts/author-400-italic.woff2') format('woff2');
+				font-weight: 400;
+				font-style: italic;
+				font-display: swap;
+			}
+			@font-face {
+				font-family: 'Author';
+				src: url('%sveltekit.assets%/fonts/author-500.woff2') format('woff2');
+				font-weight: 500;
+				font-style: normal;
+				font-display: swap;
+			}
+			@font-face {
+				font-family: 'Author';
+				src: url('%sveltekit.assets%/fonts/author-600.woff2') format('woff2');
+				font-weight: 600;
+				font-style: normal;
+				font-display: swap;
+			}
+			@font-face {
+				font-family: 'Author';
+				src: url('%sveltekit.assets%/fonts/author-700.woff2') format('woff2');
+				font-weight: 700;
+				font-style: normal;
+				font-display: swap;
+			}
+			@font-face {
+				font-family: 'Tanker';
+				src: url('%sveltekit.assets%/fonts/tanker-400.woff2') format('woff2');
+				font-weight: 400;
+				font-style: normal;
+				font-display: swap;
+			}
 			@font-face {
 				font-family: 'Chakra Petch';
 				src: url('%sveltekit.assets%/fonts/chakra-petch-400.woff2') format('woff2');
 				font-weight: 400;
+				font-style: normal;
 				font-display: swap;
 			}
 			@font-face {
 				font-family: 'Chakra Petch';
 				src: url('%sveltekit.assets%/fonts/chakra-petch-500.woff2') format('woff2');
 				font-weight: 500;
+				font-style: normal;
 				font-display: swap;
 			}
 			@font-face {
 				font-family: 'Chakra Petch';
 				src: url('%sveltekit.assets%/fonts/chakra-petch-600.woff2') format('woff2');
 				font-weight: 600;
+				font-style: normal;
 				font-display: swap;
 			}
 			@font-face {
-				font-family: 'Literata';
-				src: url('%sveltekit.assets%/fonts/literata.woff2') format('woff2');
-				font-weight: 400 700;
+				font-family: 'Clash Grotesk';
+				src: url('%sveltekit.assets%/fonts/clash-grotesk-500.woff2') format('woff2');
+				font-weight: 500;
+				font-style: normal;
 				font-display: swap;
 			}
 			@font-face {
-				font-family: 'Literata';
-				src: url('%sveltekit.assets%/fonts/literata-italic.woff2') format('woff2');
+				font-family: 'Switzer';
+				src: url('%sveltekit.assets%/fonts/switzer-600.woff2') format('woff2');
+				font-weight: 600;
+				font-style: normal;
+				font-display: swap;
+			}
+			@font-face {
+				font-family: 'Atkinson Hyperlegible Next';
+				src: url('%sveltekit.assets%/fonts/atkinson-next-400-normal.woff2') format('woff2');
+				font-weight: 400;
+				font-style: normal;
+				font-display: swap;
+			}
+			@font-face {
+				font-family: 'Atkinson Hyperlegible Next';
+				src: url('%sveltekit.assets%/fonts/atkinson-next-400-italic.woff2') format('woff2');
+				font-weight: 400;
 				font-style: italic;
-				font-weight: 400 700;
+				font-display: swap;
+			}
+			@font-face {
+				font-family: 'Atkinson Hyperlegible Next';
+				src: url('%sveltekit.assets%/fonts/atkinson-next-500-normal.woff2') format('woff2');
+				font-weight: 500;
+				font-style: normal;
+				font-display: swap;
+			}
+			@font-face {
+				font-family: 'Atkinson Hyperlegible Next';
+				src: url('%sveltekit.assets%/fonts/atkinson-next-600-normal.woff2') format('woff2');
+				font-weight: 600;
+				font-style: normal;
 				font-display: swap;
 			}
 		</style>
@@ -45,9 +120,10 @@
 		<script defer src="https://cloud.umami.is/script.js" data-website-id="64da71bf-8905-4c7b-b409-392bb12f0978"></script>
 		<!-- Cloudflare Web Analytics: the same kind of anonymous counts, no cookies. The token isn't a secret either. -->
 		<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "4936f7be911e4c39bd4c6fb2f1ffb1f8"}'></script>
-		<!-- At night the page is built in day colours and only turns dark once the script runs. Until then,
-		     show plain night sky instead of a flash of cream. Same rule as isNight() in daylight.ts.
-		     The layout removes the class once it's up. -->
+		<!-- At night the page is built in day colours and only turns dark once the script runs. This marks
+		     the page as night before it paints, so the layout's styles show it in night colours from the
+		     start (no flash of cream, and nothing hidden while the script loads). Same rule as isNight()
+		     in daylight.ts. The layout removes the class once the island has set the colours itself. -->
 		<script>
 			(function () {
 				var time = new URLSearchParams(location.search).get('time');
@@ -59,9 +135,6 @@
 		<style>
 			html.night {
 				background: #2b2850;
-			}
-			html.night body {
-				visibility: hidden;
 			}
 		</style>
 		%sveltekit.head%

@@ -38,8 +38,8 @@
 	];
 
 	const resumeLinks = [
-		{ label: 'resume', href: '/simplified/docs/Agnihotra Bhattacharya — Resume.pdf' },
-		{ label: 'resume-dark', href: '/simplified/docs/Agnihotra Bhattacharya — Resume - Dark.pdf' }
+		{ label: 'resume', href: '/resume/Agnihotra Bhattacharya — Resume.pdf' },
+		{ label: 'resume-dark', href: '/resume/Agnihotra Bhattacharya — Resume-Dark.pdf' }
 	];
 
 	const roles = [
@@ -91,114 +91,110 @@
 		}
 	];
 
-	const projects = [
-		{
-			kind: 'hero',
-			title: "Dawn's Journey",
-			subtitle: 'Browser RPG · Solo build',
-			blurb:
-				'190 files. 89 components. A full design system, quest engine, turn-based combat, and world map. No backend.',
-			tools: ['SvelteKit', 'TypeScript', 'Tiled', 'Affinity'],
-			href: 'https://dawns-journey.vercel.app/devs-corner',
-			external: true,
-			cover: '/simplified/images/project-dawns-journey.png'
-		},
-		{
-			kind: 'hero',
+	// ---- Content: Panel 2, the gallery ----------------------------
+	// Tiles: 'xl' takes 2×2, 'one' 1×1, 'strip' a whole row (the logos). Clicking a tile opens its
+	// project's card (the island's own, see +page.server.ts); `href` is where a new-tab click goes.
+	/** @typedef {{ kind: 'xl' | 'one' | 'strip', title?: string, subtitle?: string, blurb?: string, tools?: string[], href?: string, cover?: string }} Tile */
+	/** @type {Record<string, Tile>} */
+	const tiles = {
+		arboreum: {
+			kind: 'xl',
 			title: 'Arboreum',
 			subtitle: 'Notes app · Solo build',
 			blurb:
 				"A notes app where your notes grow as trees. Same design vocabulary as Dawn's Journey, different domain.",
 			tools: ['SvelteKit', 'TypeScript'],
-			href: 'https://arboreum-v1.vercel.app',
-			external: true,
-			cover: '/simplified/images/project-arboreum.png'
+			href: 'https://arboreum-v2.vercel.app',
+			cover: '/content/furnace/arboreum-welcome.jpg'
 		},
-		{
-			kind: 'small',
-			title: 'Insta Help — Rebrand',
-			subtitle: 'Brand case study',
-			blurb: 'A self-directed rebrand case study.',
-			tools: ['Affinity', 'Branding'],
-			href: '/simplified/docs/InstaHelp_Case_study.pdf',
-			external: false,
-			cover: '/simplified/images/project-instahelp.png'
+		propsize: {
+			kind: 'one',
+			title: 'Propsize',
+			subtitle: '3D editor',
+			tools: [],
+			href: 'https://junesforge.com/propsize',
+			cover: '/content/furnace/propsize-watchtower.jpg'
 		},
-		{
-			kind: 'small',
+		ffg: {
+			kind: 'one',
+			title: 'Fire Fighter Girl',
+			subtitle: 'Open-world game',
+			tools: [],
+			href: 'https://firefightergirl.vercel.app/',
+			cover: '/content/map-table/ffg-shallows.jpg'
+		},
+		cube: {
+			kind: 'one',
+			title: 'Solve the Cube',
+			subtitle: 'Interactive 3D guide',
+			tools: [],
+			href: 'https://solve-the-cube-rho.vercel.app',
+			cover: '/content/rubiks-cube/01-home-poster.jpg'
+		},
+		dawns: {
+			kind: 'one',
+			title: "Dawn's Journey",
+			subtitle: 'Browser RPG · Solo build',
+			tools: ['SvelteKit', 'TypeScript', 'Tiled', 'Affinity'],
+			href: 'https://dawns-journey.vercel.app/devs-corner',
+			cover: '/simplified/images/project-dawns-journey.png'
+		},
+		logos: { kind: 'strip' },
+		blueprints: {
+			kind: 'one',
 			title: 'Forge Blueprints',
 			subtitle: 'Illustration',
-			blurb: 'Art-deco blade, shield, and spear technical drawings.',
 			tools: ['Illustrator'],
 			href: 'https://dribbble.com/shots/25752613-Forge-Blueprints',
-			external: true,
 			cover: '/simplified/images/project-forge.svg'
 		},
-		{
-			kind: 'small',
-			title: 'Logos & Type',
-			subtitle: 'Logo',
-			blurb: 'Logo for a conference for the GCC.',
-			tools: ['Affinity'],
-			href: 'https://dribbble.com/shots/27290153-Event-Logos-5-GCC-Conference-on-Energy-Communication',
-			external: true,
-			cover: '/simplified/images/GCEC2.jpg'
-		},
-		{
-			kind: 'small',
-			title: 'Logos & Type',
-			subtitle: '36 Days of Type · Logos',
-			blurb: 'Logo commissions, stickers, typographic studies.',
-			tools: ['Affinity', 'Illustrator'],
-			href: 'https://dribbble.com/jxnesforge',
-			external: true,
-			cover: '/simplified/images/project-type.webp'
-		},
-		{
-			kind: 'small',
-			title: 'Logos & Type',
-			subtitle: 'Logo',
-			blurb: 'Logo for an environment summit.',
-			tools: ['Affinity', 'Illustrator'],
-			href: 'https://dribbble.com/shots/27290136-ESG-An-Event-Logo',
-			external: true,
-			cover: '/simplified/images/ESG1.png'
-		},
-		{
-			kind: 'small',
-			title: 'Logos & Type',
-			subtitle: 'Logo',
-			blurb: 'Logo commissions, stickers, typographic studies.',
-			tools: ['Affinity', 'Illustrator'],
-			href: 'https://dribbble.com/shots/27290166-Event-Logo-Future-Wellbeing-Congress',
-			external: true,
-			cover: '/simplified/images/FWC1.png'
-		},
-		{
-			kind: 'small',
-			title: 'Fest Logo',
-			subtitle: 'Logo · Branding',
-			blurb: 'In memory of college.',
-			tools: ['Photoshop', 'Branding'],
-			href: 'https://dribbble.com/shots/3597650-End-Point-Sticker',
-			external: true,
-			cover: '/simplified/images/TT16.png'
-		},
-		{
-			kind: 'small',
+		isometric: {
+			kind: 'one',
 			title: 'Isometric Series',
 			subtitle: 'Environment illustration',
-			blurb: 'Four isometric cityscapes. On Dribbble.',
 			tools: ['Affinity'],
 			href: 'https://dribbble.com/jxnesforge',
-			external: true,
 			cover: '/simplified/images/project-isometric.jpg'
+		},
+		chessboard: {
+			kind: 'one',
+			title: 'Chessboard Battlefield',
+			subtitle: 'Tactics game',
+			tools: [],
+			href: 'https://chessboard-combat.vercel.app/',
+			cover: '/content/furnace/chessboard-battlefield.webp'
 		}
+	};
+	/**
+	 * The gallery's pages (up to three), each a 4 × 3 bento, filled in this order. The history row
+	 * sits at the foot of the last page. Rebalance by hand as work comes in.
+	 * @type {string[][]}
+	 */
+	const galleryPages = [
+		['arboreum', 'propsize', 'ffg', 'cube', 'dawns', 'logos'],
+		['blueprints', 'isometric', 'chessboard']
 	];
+
+	/** The card open over the page, and the image it opened on. */
+	/** @type {{ card: import('#lib/content/types.ts').Carousel, start: number } | null} */
+	let modal = $state(null);
+	/** @param {string} id @param {number} [start] */
+	function openCard(id, start = 0) {
+		const card = data.cards[id];
+		if (card) modal = { card, start };
+	}
+	/** A plain click opens the card; a modified one (new tab) follows the link. @param {MouseEvent} e @param {string} id */
+	function onTile(e, id) {
+		if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0 || !data.cards[id]) return;
+		e.preventDefault();
+		openCard(id);
+	}
 
 
 	import RotatingCube from '#lib/simplified/RotatingCube.svelte';
 	import SkillsPanel from '#lib/components/SkillsPanel.svelte';
+	import LogoStrip from '#lib/simplified/LogoStrip.svelte';
+	import ProjectModal from '#lib/simplified/ProjectModal.svelte';
 
 	// The skills panel's content (src/content/skills.yaml), shared with the cottage on the island.
 	let { data } = $props();
@@ -458,62 +454,77 @@
 	</main>
 
 	<!-- ══════════════════════════════════════
-	     PANEL 2 — WORK
+	     PANEL 2 — WORK: the gallery, a page or more; the history row at the foot of the last
 	     ══════════════════════════════════════ -->
-	<main class="panel panel-2">
-		<div class="panel-2-inner">
-			<!-- HISTORY STRIP -->
-			<section class="history" aria-label="History">
-				<div class="card-tag">◦ SOMEWHERE BEHIND</div>
-				<ul class="history-list">
-					{#each history as h}
-						<li class="history-item">
-							<span class="history-when">{h.when}</span>
-							<span class="history-what">{h.what}</span>
-							<span class="history-detail">{h.detail}</span>
-						</li>
-					{/each}
-				</ul>
-			</section>
-
-			<!-- PROJECTS GRID -->
-			<section class="projects" aria-label="Selected projects">
-				<div class="card-tag projects-tag">◦ SELECTED WORK</div>
+	{#each galleryPages as pageTiles, p (p)}
+		{@const last = p === galleryPages.length - 1}
+		<main class="panel panel-2">
+			<section class="projects" aria-label={galleryPages.length > 1 ? `Selected work, ${p + 1} of ${galleryPages.length}` : 'Selected work'}>
+				<div class="card-tag projects-tag">
+					◦ SELECTED WORK{#if galleryPages.length > 1}<span class="page-count"> · {p + 1}/{galleryPages.length}</span>{/if}
+				</div>
 				<div class="project-grid">
-					{#each projects as p}
-						<a
-							href={p.href}
-							class="card project-card"
-							class:hero={p.kind === 'hero'}
-							target={p.external ? '_blank' : '_self'}
-							rel={p.external ? 'noopener noreferrer' : ''}
-						>
-							<div class="project-cover">
-								<div class="project-cover-fallback"></div>
-								<img src={p.cover} alt={p.title} class="project-cover-img" />
-								<div class="project-cover-vignette"></div>
+					{#each pageTiles as id (id)}
+						{@const t = tiles[id]}
+						{#if t.kind === 'strip'}
+							<div class="tile-strip">
+								<LogoStrip logos={data.cards.logos.images} onopen={(i) => openCard('logos', i)} />
 							</div>
-							<div class="project-body">
-								<div class="project-head">
-									<h3 class="project-title">{p.title}</h3>
-									<span class="project-arrow">{p.external ? '↗' : '→'}</span>
+						{:else}
+							<a
+								href={t.href}
+								class="card project-card"
+								class:xl={t.kind === 'xl'}
+								target="_blank"
+								rel="noopener noreferrer"
+								onclick={(e) => onTile(e, id)}
+							>
+								<div class="project-cover">
+									<div class="project-cover-fallback"></div>
+									<img src={t.cover} alt="" class="project-cover-img" loading="lazy" />
+									<div class="project-cover-vignette"></div>
 								</div>
-								<div class="project-subtitle">{p.subtitle}</div>
-								<p class="project-blurb">{p.blurb}</p>
-								<ul class="project-tools">
-									{#each p.tools as t}
-										<li>{t}</li>
-									{/each}
-								</ul>
-							</div>
-						</a>
+								<div class="project-body">
+									<div class="project-head">
+										<h3 class="project-title">{t.title}</h3>
+										<span class="project-arrow">↗</span>
+									</div>
+									{#if t.subtitle}<div class="project-subtitle">{t.subtitle}</div>{/if}
+									{#if t.blurb}<p class="project-blurb">{t.blurb}</p>{/if}
+									{#if t.tools?.length}
+										<ul class="project-tools">
+											{#each t.tools as tool (tool)}
+												<li>{tool}</li>
+											{/each}
+										</ul>
+									{/if}
+								</div>
+							</a>
+						{/if}
 					{/each}
 				</div>
 			</section>
-		</div>
 
-		<div class="panel-footer">PANEL 2 · MISC ↓</div>
-	</main>
+			{#if last}
+				<section class="history" aria-label="History">
+					<div class="card-tag">◦ SOMEWHERE BEHIND</div>
+					<ul class="history-list">
+						{#each history as h (h.what)}
+							<li class="history-item">
+								<span class="history-when">{h.when}</span>
+								<span class="history-what">{h.what}</span>
+								<span class="history-detail">{h.detail}</span>
+							</li>
+						{/each}
+					</ul>
+				</section>
+			{/if}
+
+			<div class="panel-footer">PANEL {p + 2} · {last ? 'MISC' : 'MORE WORK'} ↓</div>
+		</main>
+	{/each}
+
+	<ProjectModal card={modal?.card ?? null} start={modal?.start ?? 0} onclose={() => (modal = null)} />
 
 	<!-- ══════════════════════════════════════
 	     PANEL 3 — VANITY + CONTACT CLOSER
@@ -1426,29 +1437,19 @@
 	/* =================================================================
 	   PANEL 2 — WORK
 	   ================================================================= */
-	.panel-2-inner {
-		flex: 1;
-		display: flex;
-		/* flex-direction: row-reverse; */
-		gap: 20px;
-		min-height: 0;
-		overflow: hidden;
-	}
-
-	/* History strip */
+	/* History: one row of four along the foot of the gallery's last page. */
 	.history {
-		/* flex-shrink: 0; */
-		flex: 1;
-		/* min-width: 300px; */
-		/* flex-grow: 1; */
-		max-width: 400px;
+		flex: none;
+	}
+	.history .card-tag {
+		margin-bottom: 0;
 	}
 	.history-list {
 		list-style: none;
 		padding: 0;
 		margin: 8px 0 0;
 		display: grid;
-		grid-template-rows: repeat(4, 1fr);
+		grid-template-columns: repeat(4, 1fr);
 		gap: 10px;
 	}
 	.history-item {
@@ -1491,27 +1492,29 @@
 	.projects-tag {
 		margin-bottom: 0;
 	}
+	.page-count {
+		color: var(--text-dim);
+	}
+	/* Every page is the same 4 × 3 bento, so tiles keep their size from page to page; a page that
+	   isn't full just leaves room for what comes next. */
 	.project-grid {
 		flex: 1;
 		display: grid;
-		grid-template-columns: repeat(4, 1fr);
-		grid-template-rows: 1.2fr 1fr 1fr;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		grid-template-rows: repeat(3, minmax(0, 1fr));
+		grid-auto-flow: row dense;
 		gap: 12px;
 		min-height: 0;
 	}
-	.project-grid > :nth-child(1) {
-		grid-column: 1 / 3;
-		grid-row: 1;
+	.project-card.xl {
+		grid-column: span 2;
+		grid-row: span 2;
 	}
-	.project-grid > :nth-child(2) {
-		grid-column: 3 / 5;
-		grid-row: 1;
-	}
-	.project-grid > :nth-child(n + 3) {
-		grid-row: 2;
-	}
-	.project-grid > :nth-child(n + 7) {
-		grid-row: 3;
+	.tile-strip {
+		grid-column: 1 / -1;
+		display: grid;
+		min-height: 0;
+		min-width: 0;
 	}
 
 	.project-card {
@@ -1523,10 +1526,10 @@
 		overflow: hidden;
 		min-height: 0;
 	}
-	.project-card.hero {
-		flex-direction: row;
+	.project-card.xl {
+		flex-direction: column;
 	}
-	.project-card:not(.hero) {
+	.project-card:not(.xl) {
 		flex-direction: column;
 	}
 
@@ -1536,10 +1539,11 @@
 		overflow: hidden;
 		background: #0e0e0e;
 	}
-	.project-card.hero .project-cover {
-		width: 45%;
+	.project-card.xl .project-cover {
+		width: 100%;
+		height: 64%;
 	}
-	.project-card:not(.hero) .project-cover {
+	.project-card:not(.xl) .project-cover {
 		width: 100%;
 		height: 45%;
 	}
@@ -1575,7 +1579,7 @@
 		min-width: 0;
 		height: fit-content;
 	}
-	.project-card:not(.hero) .project-body {
+	.project-card:not(.xl) .project-body {
 		padding: 12px 14px;
 		gap: 4px;
 	}
@@ -1592,7 +1596,7 @@
 		margin: 0;
 		line-height: 1.2;
 	}
-	.project-card:not(.hero) .project-title {
+	.project-card:not(.xl) .project-title {
 		font-size: 0.9375rem;
 	}
 	.project-arrow {
@@ -1619,7 +1623,7 @@
 		margin: 6px 0 0 0;
 		flex: 1;
 	}
-	.project-card:not(.hero) .project-blurb {
+	.project-card:not(.xl) .project-blurb {
 		display: none;
 	}
 	.project-tools {
@@ -1639,11 +1643,11 @@
 		border-radius: 4px;
 		letter-spacing: 0.05em;
 	}
-	.project-card:not(.hero) .project-tools {
+	.project-card:not(.xl) .project-tools {
 		margin-top: 4px;
 		gap: 4px;
 	}
-	.project-card:not(.hero) .project-tools li {
+	.project-card:not(.xl) .project-tools li {
 		font-size: 0.625rem;
 		padding: 2px 6px;
 	}
@@ -1805,9 +1809,6 @@
 		.featured {
 			min-height: 280px;
 		}
-		.panel-2-inner {
-			flex-direction: column;
-		}
 
 		.history-list {
 			grid-template-columns: 1fr;
@@ -1820,24 +1821,21 @@
 			grid-template-columns: 1fr;
 			grid-template-rows: auto;
 		}
-		.project-grid > :nth-child(1),
-		.project-grid > :nth-child(2) {
+		.project-card.xl,
+		.tile-strip {
 			grid-column: auto;
 			grid-row: auto;
 		}
-		.project-grid > :nth-child(n + 3) {
-			grid-row: auto;
-		}
-		.project-card.hero,
-		.project-card:not(.hero) {
+		.project-card.xl,
+		.project-card:not(.xl) {
 			flex-direction: column;
 		}
-		.project-card.hero .project-cover,
-		.project-card:not(.hero) .project-cover {
+		.project-card.xl .project-cover,
+		.project-card:not(.xl) .project-cover {
 			width: 100%;
 			height: 180px;
 		}
-		.project-card:not(.hero) .project-blurb {
+		.project-card:not(.xl) .project-blurb {
 			display: block;
 		}
 	}

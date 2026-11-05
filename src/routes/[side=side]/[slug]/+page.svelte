@@ -92,7 +92,7 @@
 	{/if}
 
 	{#if skills && s.skills}
-		<div class="skills"><SkillsPanel {skills} open={s.skills} /></div>
+		<div class="skills"><SkillsPanel {skills} open={s.skills} level={2} /></div>
 	{/if}
 
 	{#if s.links.length || s.socials.length}
@@ -250,7 +250,7 @@
 		color: inherit;
 	}
 	.summary {
-		font-size: 14px;
+		font-size: 15.5px;
 		line-height: 1.5;
 		color: var(--muted);
 	}

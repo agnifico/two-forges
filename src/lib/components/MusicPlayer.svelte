@@ -32,17 +32,20 @@
 	const lit: Record<number, string> = { 1: 'bc', 2: 'abdeg', 3: 'abcdg' };
 	const segments = $derived([...'abcdefg'].map((s, i) => ({ d: bars[i], on: (lit[music.index + 1] ?? '').includes(s) })));
 
+	/** ← → change the tune only while focus is on the player's buttons (elsewhere they belong to whatever has focus). */
 	const onKey = (e: KeyboardEvent) => {
 		if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
-		if ((e.target as HTMLElement).closest('input, textarea, select, [contenteditable]')) return;
+		if ((e.target as HTMLElement).closest('input')) return;
 		if (e.key === 'ArrowLeft') music.step(-1);
 		else if (e.key === 'ArrowRight') music.step(1);
+		else return;
+		e.preventDefault();
 	};
 </script>
 
-<svelte:window onkeydown={onKey} />
-
-<div class="player" class:off={!music.on} role="group" aria-label="Music">
+<!-- The group only catches arrow keys bubbling up from its own buttons. -->
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+<div class="player" class:off={!music.on} role="group" aria-label="Music" onkeydown={onKey}>
 	<button class="icon" onclick={() => music.toggle()} aria-pressed={music.on} aria-label={music.on ? 'Music off' : 'Music on'}>
 		<svg viewBox="0 0 24 24" aria-hidden="true">
 			<path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" />

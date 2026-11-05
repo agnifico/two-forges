@@ -5,6 +5,7 @@ carousels:
   - title: Arboreum
     summary: A notes app where customisation meets swappable electronics. Concept project, working app.
     url: https://arboreum-v2.vercel.app
+    caseStudy: https://arboreum-v2.vercel.app/about
     images:
       - src: /content/furnace/arboreum-welcome.jpg
         alt: Arboreum's welcome note on a dark screen set into a cream and brown handheld console, with a D-pad, A and B buttons, and a small pixel-art map of trees.

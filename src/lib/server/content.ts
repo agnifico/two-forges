@@ -20,6 +20,7 @@ const stationFiles = raw(
 	import.meta.glob('/src/content/stations/*/*.md', { query: '?raw', import: 'default', eager: true })
 );
 const skillsFile = raw(import.meta.glob('/src/content/skills.yaml', { query: '?raw', import: 'default', eager: true }));
+const creditsFile = raw(import.meta.glob('/src/content/credits.md', { query: '?raw', import: 'default', eager: true }));
 const secretFiles = raw(import.meta.glob('/src/content/secrets/*/*.md', { query: '?raw', import: 'default', eager: true }));
 
 const stationIds = new Set<string>(slots.map((s) => s.id));
@@ -176,6 +177,7 @@ function readStation(path: string): StationContent {
 			title: text(file, c, 'title', true),
 			summary: text(file, c, 'summary') || undefined,
 			url: text(file, c, 'url') || undefined,
+			caseStudy: text(file, c, 'caseStudy') || undefined,
 			images: list(file, c, 'images', image(file))
 		})),
 		reels: list(file, data, 'reels', (r): Reel => ({
@@ -283,6 +285,13 @@ export function loadStation(side: string, slug: string): StationContent | undefi
 /** The skills panel, for the stations that show it and /simplified. */
 export function loadSkills(): Skills {
 	return load().skills;
+}
+
+/** The credits card (/credits): its title and body, from src/content/credits.md. */
+export function loadCredits(): { title: string; html: string } {
+	const file = 'src/content/credits.md';
+	const { data, body } = split(file, Object.values(creditsFile)[0] ?? fail(file, 'missing'));
+	return { title: text(file, data, 'title') || 'Credits', html: render(body) };
 }
 
 export function stationEntries() {

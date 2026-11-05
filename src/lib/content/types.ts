@@ -33,6 +33,8 @@ export interface Carousel {
 	title: string;
 	summary?: string;
 	url?: string;
+	/** A write-up of the project elsewhere, linked under the summary. */
+	caseStudy?: string;
 	images: GalleryImage[];
 }
 

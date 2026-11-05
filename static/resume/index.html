@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Agnihotra Bhattacharya — Resume</title>
+<!-- The one source of the resume: edit resume.data.js. Styles: resume-geometric.css (day and night),
+     or swap in resume.css (the serif look, also day and night). Print from Firefox to A4: Save to PDF, with
+     backgrounds on for the night version. Night: the switch at the top right, or ?theme=dark. -->
+<link rel="stylesheet" href="resume-geometric.css">
+<!-- <link rel="stylesheet" href="resume.css"> -->
+<script>
+  // Before first paint, so night never flashes white: ?theme= wins, then the last choice, then the system.
+  (() => {
+    const asked = new URLSearchParams(location.search).get('theme');
+    let saved = null;
+    try { saved = localStorage.getItem('resume-theme'); } catch {}
+    const dark = asked ? asked === 'dark' : saved ? saved === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    if (dark) document.documentElement.dataset.theme = 'dark';
+  })();
+</script>
+</head>
+<body>
+
+<button class="theme-toggle" id="theme-toggle" type="button"></button>
+
+<div class="page">
+  <!-- Split like the columns below: name, title and sites on the left; contact on the right,
+       sitting on the same baseline as the sites so the name stays highest. -->
+  <header class="masthead">
+    <div class="masthead-main">
+      <h1 id="name"></h1>
+      <p class="title" id="title"></p>
+      <p class="sites" id="sites"></p>
+    </div>
+    <div class="masthead-side">
+      <div class="contact" id="contact"></div>
+    </div>
+  </header>
+
+  <div class="columns">
+    <main class="main">
+      <section>
+        <h2>Shipped</h2>
+        <div id="shipped"></div>
+      </section>
+      <section>
+        <h2>Experience</h2>
+        <div id="experience"></div>
+      </section>
+      <section>
+        <h2>Leadership</h2>
+        <div id="leadership"></div>
+      </section>
+    </main>
+
+    <aside class="sidebar">
+      <section>
+        <h2>Online</h2>
+        <div id="online"></div>
+      </section>
+      <section>
+        <h2>Education</h2>
+        <div id="education"></div>
+      </section>
+      <section>
+        <h2>Tools</h2>
+        <div id="tools"></div>
+      </section>
+      <section>
+        <h2>Languages</h2>
+        <div id="languages"></div>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<script src="resume.data.js"></script>
+<script>
+// Day / night switch
+const toggle = document.getElementById("theme-toggle");
+const label = () => {
+  const dark = document.documentElement.dataset.theme === "dark";
+  toggle.textContent = dark ? "Day" : "Night";
+  toggle.setAttribute("aria-label", dark ? "Switch to day" : "Switch to night");
+};
+toggle.addEventListener("click", () => {
+  const dark = document.documentElement.dataset.theme !== "dark";
+  if (dark) document.documentElement.dataset.theme = "dark";
+  else delete document.documentElement.dataset.theme;
+  try { localStorage.setItem("resume-theme", dark ? "dark" : "light"); } catch {}
+  label();
+});
+label();
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) =>
+  String(s ?? "").replace(/[&<>"]/g, (c) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])
+  );
+
+function entry({ heading, dates, meta, description, link }) {
+  return `
+    <article class="entry">
+      <div class="entry-head">
+        <h3>${heading}</h3>
+        ${dates ? `<span class="dates">${esc(dates)}</span>` : ""}
+      </div>
+      ${meta ? `<p class="meta">${esc(meta)}</p>` : ""}
+      ${description ? `<p class="body">${esc(description)}</p>` : ""}
+      ${link ? `<a class="link" href="${esc(link)}" target="_blank">${esc(link).replace(/^https?:\/\//, '')}</a>` : ""}
+    </article>`;
+}
+
+// Header
+$("name").textContent = resume.name;
+$("title").textContent = resume.title;
+$("sites").innerHTML = resume.sites
+  .map((w) => `<span class="site">${
+    w.note ? `<span class="site-note">${esc(w.note)}</span> ` : ""
+  }<a class="website" href="${esc(w.url)}" target="_blank">${esc(w.label)}</a></span>`)
+  .join('<span class="sep">·</span>');
+
+// Shipped
+$("shipped").innerHTML = resume.shipped
+  .map((p) =>
+    entry({
+      heading: esc(p.name),
+      dates: p.dates,
+      meta: p.meta,
+      description: p.description,
+      link: p.link,
+    })
+  )
+  .join("");
+
+// Experience + Leadership
+const roleEntry = (r) =>
+  entry({
+    heading: r.org
+      ? `${esc(r.role)}<span class="org">, ${esc(r.org)}</span>`
+      : esc(r.role),
+    dates: r.dates,
+    meta: r.meta,
+    description: r.description,
+  });
+
+$("experience").innerHTML = resume.experience.map(roleEntry).join("");
+$("leadership").innerHTML = resume.leadership.map(roleEntry).join("");
+
+// Contact
+$("contact").innerHTML = Object.values(resume.contact)
+  .filter(Boolean)
+  .map((v) => `<p>${esc(v)}</p>`)
+  .join("");
+
+// Online (Now with real links)
+$("online").innerHTML = resume.online
+  .map(
+    (o) =>
+      `<p><a href="${esc(o.url)}" class="online-link" target="_blank">${esc(o.label)}${
+        o.handle ? ` <span class="handle">${esc(o.handle)}</span>` : ""
+      }</a></p>`
+  )
+  .join("");
+
+// Education (Location and Dates side-by-side, plus grade)
+$("education").innerHTML = resume.education
+  .map(
+    (e) => `
+      <div class="edu entry">
+        <h3 class="school">${esc(e.school)}</h3>
+        <div class="edu-meta">
+          <span class="location">${esc(e.location)}</span>
+          <span class="dates">${esc(e.dates)}</span>
+        </div>
+        <p class="degree">${esc(e.degree)} <span class="grade">(${esc(e.grade)})</span></p>
+        ${e.description ? `<p class="body">${esc(e.description)}</p>` : ""}
+      </div>`
+  )
+  .join("");
+
+// Tools: one paragraph, dot-separated
+$("tools").innerHTML = `<p class="tools">${resume.tools.map(esc).join(' <span class="sep">·</span> ')}</p>`;
+
+// Languages
+$("languages").innerHTML = resume.languages
+  .map(
+    (l) => `
+      <div class="lang">
+        <p>${esc(l.list)}</p>
+        <p class="level">${esc(l.level)}</p>
+      </div>`
+  )
+  .join("");
+</script>
+
+</body>
+</html>

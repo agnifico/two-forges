@@ -1,14 +1,21 @@
-<!-- One project's images, one at a time: swipe or scroll the strip, or use the arrows and dots. The
-     strip is a plain scroll-snap row, so it works with touch, trackpads and the keyboard without help. -->
+<!-- One project as a card: its images one at a time on top (swipe, scroll, or the arrows and dots
+     under them), then title, summary and links. The strip is a plain scroll-snap row, so it works with
+     touch, trackpads and the keyboard without help. Captions show on a strip over the image on hover. -->
 <script lang="ts">
 	import type { Carousel } from '../content/types';
 	import { isExternal } from '../content/urls';
 
-	let { carousel }: { carousel: Carousel } = $props();
-	const { title, summary, url, images } = $derived(carousel);
+	import { onMount } from 'svelte';
+
+	/** `start`: the image to open on (a logo picked from a strip, say). */
+	let { carousel, start = 0 }: { carousel: Carousel; start?: number } = $props();
+	const { title, summary, url, caseStudy, images } = $derived(carousel);
 
 	let track: HTMLElement;
 	let index = $state(0);
+	onMount(() => {
+		if (start) track.scrollLeft = start * track.clientWidth;
+	});
 
 	/** Shows image `i`, wrapping round at either end. */
 	function go(i: number) {
@@ -17,20 +24,10 @@
 		track.scrollTo({ left: ((i + n) % n) * track.clientWidth, behavior: reduce ? 'instant' : 'smooth' });
 	}
 	const onscroll = () => (index = Math.round(track.scrollLeft / track.clientWidth));
+	const caption = $derived(images[index]?.caption ?? '');
 </script>
 
 <section class="carousel" aria-roledescription="carousel" aria-label={title}>
-	<h2>
-		{#if url}
-			<a href={url} target={isExternal(url) ? '_blank' : undefined} rel={isExternal(url) ? 'noopener' : undefined}
-				>{title}{#if isExternal(url)}<span aria-hidden="true"> ↗</span><span class="sr">(opens in a new tab)</span>{/if}</a
-			>
-		{:else}
-			{title}
-		{/if}
-	</h2>
-	{#if summary}<p class="summary">{summary}</p>{/if}
-
 	<div class="frame">
 		<!-- Focusable so arrow keys scroll it (a scrolling region needs to be). -->
 		<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
@@ -47,53 +44,65 @@
 				</div>
 			{/each}
 		</div>
-		{#if images.length > 1}
-			<button class="arrow prev" onclick={() => go(index - 1)} aria-label="Previous image">
-				<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
-			</button>
-			<button class="arrow next" onclick={() => go(index + 1)} aria-label="Next image">
-				<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
-			</button>
-		{/if}
+		{#if caption}<p class="caption" aria-live="polite">{caption}</p>{/if}
 	</div>
 
-	<div class="foot">
-		<p class="caption" aria-live="polite">{images[index]?.caption ?? ''}</p>
-		{#if images.length > 1}
+	{#if images.length > 1}
+		<div class="nav">
+			<button class="arrow" onclick={() => go(index - 1)} aria-label="Previous image">
+				<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
+			</button>
 			<div class="dots">
 				{#each images as image, i (image.src)}
 					<button onclick={() => go(i)} aria-label="Image {i + 1}" aria-current={i === index}></button>
 				{/each}
 			</div>
+			<button class="arrow" onclick={() => go(index + 1)} aria-label="Next image">
+				<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
+			</button>
+		</div>
+	{/if}
+
+	<div class="body">
+		<h2>
+			{#if url}
+				<a href={url} target={isExternal(url) ? '_blank' : undefined} rel={isExternal(url) ? 'noopener' : undefined}
+					>{title}{#if isExternal(url)}<span aria-hidden="true"> ↗</span><span class="sr">(opens in a new tab)</span>{/if}</a
+				>
+			{:else}
+				{title}
+			{/if}
+		</h2>
+		{#if summary}<p class="summary">{summary}</p>{/if}
+		{#if caseStudy}
+			<p class="case">
+				<a href={caseStudy} target={isExternal(caseStudy) ? '_blank' : undefined} rel={isExternal(caseStudy) ? 'noopener' : undefined}
+					>Read the case study{#if isExternal(caseStudy)}<span aria-hidden="true"> ↗</span><span class="sr">(opens in a new tab)</span>{/if}</a
+				>
+			</p>
 		{/if}
 	</div>
 </section>
 
 <style>
+	/* The card: one block, set apart from the page by a hairline, a soft lift and its own padding. */
 	.carousel {
-		margin-top: 26px;
+		margin-top: 22px;
+		padding: 10px;
+		border: 1px solid var(--line);
+		border-radius: 12px;
+		background: var(--paper);
+		box-shadow: 0 1px 2px rgba(40, 25, 10, 0.06), 0 6px 18px rgba(40, 25, 10, 0.07);
 	}
-	h2 {
-		margin: 0;
-		font: 600 19px/1.25 var(--font-display);
-	}
-	h2 a {
-		color: inherit;
-		text-decoration: none;
-	}
-	h2 a:hover {
-		color: var(--ember-ink);
-	}
-	.summary {
-		margin: 4px 0 0;
-		font-size: 14px;
-		line-height: 1.5;
-		color: var(--muted);
+	.carousel + :global(.carousel) {
+		margin-top: 16px;
 	}
 
 	.frame {
 		position: relative;
-		margin-top: 12px;
+		overflow: hidden;
+		border-radius: 7px;
+		background: var(--line);
 	}
 	.track {
 		display: flex;
@@ -101,15 +110,13 @@
 		scroll-snap-type: x mandatory;
 		overscroll-behavior-x: contain;
 		scrollbar-width: none;
-		border-radius: 8px;
-		background: var(--line);
 	}
 	.track::-webkit-scrollbar {
 		display: none;
 	}
 	.track:focus-visible {
-		outline: 2px solid var(--ember);
-		outline-offset: 2px;
+		outline: 2px solid var(--focus);
+		outline-offset: -2px;
 	}
 	.slide {
 		flex: 0 0 100%;
@@ -125,53 +132,70 @@
 		object-fit: cover;
 	}
 
-	.arrow {
+	/* Caption: a pale strip over the image's foot, slid in on hover or focus. Always on for touch. */
+	.caption {
 		position: absolute;
-		top: 50%;
+		inset: auto 0 0;
+		margin: 0;
+		padding: 7px 12px;
+		background: rgba(255, 255, 255, 0.82);
+		backdrop-filter: blur(6px);
+		color: #2e261f;
+		font-size: 13px;
+		line-height: 1.35;
+		pointer-events: none;
+		opacity: 0;
+		translate: 0 100%;
+		transition: opacity 0.2s, translate 0.2s;
+	}
+	.frame:hover .caption,
+	.frame:focus-within .caption {
+		opacity: 1;
+		translate: 0 0;
+	}
+	@media (hover: none) {
+		.caption {
+			opacity: 1;
+			translate: 0 0;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.caption {
+			transition: none;
+		}
+	}
+
+	.nav {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 8px;
+		margin-top: 8px;
+	}
+	.arrow {
 		display: grid;
 		place-items: center;
-		width: 34px;
-		height: 34px;
+		width: 28px;
+		height: 28px;
 		padding: 0;
 		border: 1px solid var(--line);
 		border-radius: 50%;
-		background: var(--chip);
+		background: none;
 		color: var(--ink);
 		cursor: pointer;
-		translate: 0 -50%;
-		box-shadow: 0 2px 8px rgba(40, 25, 10, 0.18);
 	}
 	.arrow:hover {
 		border-color: var(--ember);
-	}
-	.prev {
-		left: 8px;
-	}
-	.next {
-		right: 8px;
+		background: var(--chip-hover);
 	}
 	.arrow svg {
-		width: 18px;
-		height: 18px;
+		width: 15px;
+		height: 15px;
 		fill: none;
 		stroke: currentColor;
 		stroke-width: 2;
 		stroke-linecap: round;
 		stroke-linejoin: round;
-	}
-
-	.foot {
-		display: flex;
-		align-items: center;
-		gap: 12px;
-		margin-top: 6px;
-		min-height: 18px;
-	}
-	.caption {
-		flex: 1;
-		margin: 0;
-		font-size: 13px;
-		color: var(--muted);
 	}
 	.dots {
 		display: flex;
@@ -201,6 +225,45 @@
 		background: var(--ember);
 		opacity: 1;
 		scale: 1.25;
+	}
+
+	.body {
+		padding: 12px 6px 4px;
+		border-top: 1px solid var(--line);
+		margin-top: 10px;
+	}
+	.nav + .body {
+		margin-top: 8px;
+	}
+	h2 {
+		margin: 0;
+		font: 600 19px/1.25 var(--font-display);
+	}
+	h2 a {
+		color: inherit;
+		text-decoration: none;
+	}
+	h2 a:hover {
+		color: var(--ember-ink);
+	}
+	.summary {
+		margin: 4px 0 0;
+		font-size: 15px;
+		line-height: 1.45;
+		color: var(--muted);
+	}
+	.case {
+		margin: 8px 0 0;
+		font: 600 13px/1.4 var(--font-ui);
+	}
+	.case a {
+		color: var(--ember-ink);
+		text-decoration: underline;
+		text-decoration-color: var(--ember-line);
+		text-underline-offset: 3px;
+	}
+	.case a:hover {
+		text-decoration-color: currentColor;
 	}
 	.sr {
 		position: absolute;

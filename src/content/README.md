@@ -28,6 +28,7 @@ carousels:                      # one per project: images one at a time, with ar
   - title: Dawn's Journey
     summary: One line             # optional
     url: https://…                # optional: the title links here
+    caseStudy: https://…          # optional: a "Read the case study" link under the summary
     images:                       # same fields as gallery images; shown at 3:2, cropped to fill
       - { src: /content/map-table/nuvatra.webp, alt: What it shows, caption: Optional }
 reels:                          # an HTML reel: its preview loops beside the title; a tap opens the
@@ -46,7 +47,7 @@ entries:                        # a list of works or write-ups
 skills: stack                   # shows the skills panel (skills.yaml), open on this tab:
                                 # glance, stack or misc
 links:                          # buttons at the end; off-site links open in a new tab
-  - { label: Resume, url: /simplified/docs/…, icon: document }   # icon: optional, before the label
+  - { label: Resume, url: /resume/…, icon: document }   # icon: optional, before the label
 socials:                        # icon-only buttons after the links; the label is the tooltip
   - { label: GitHub, url: https://github.com/…, icon: github }
                                 # icons: document, email, linkedin, instagram, dribbble, github
@@ -64,3 +65,7 @@ near: [-17.4, -8.3]     # only if the kind has several copies: the one nearest t
 links:
   - { label: The other side of the island, url: /war/keep }
 ```
+
+## Credits
+
+`credits.md`: the credits card at /credits (linked from the desktop controls legend and the phone corner menu). Front matter `title`, then Markdown.

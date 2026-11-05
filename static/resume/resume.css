@@ -1,0 +1,283 @@
+/* ============================================================
+   DENSITY DIAL — if the resume spills onto page 2, nudge these
+   down a notch; if page 1 looks empty, nudge them up.
+   These four control fit more than anything else.
+   ============================================================ */
+   :root {
+    --size-body:     8.2pt;   /* body copy */
+    --leading:       1.34;    /* line-height */
+    --space-entry:   3mm;     /* gap between entries */
+    --space-section: 5mm;     /* gap between sections */
+  }
+  
+  /* ---------- tokens ---------- */
+  :root {
+    --ink:          #14110f;
+    --ink-soft:     #4a443f;
+    --ink-faint:    #857d75;
+    --rule:         #ddd7d0;
+    --paper:        #ffffff;
+    --link-hover:   #b33939;
+    --desk:         #eceae6;
+  
+    --font-body:    "Charter", "Georgia", "Iowan Old Style", serif;
+    --font-display: "Charter", "Georgia", serif;
+  
+    --size-name:    24pt;
+    --size-title:   8.5pt;
+    --size-section: 7.6pt;
+    --size-h3:      10pt;
+    --size-meta:    7.6pt;
+  
+    --page-w:       210mm;
+    --page-h:       297mm;
+    --margin:       15mm;
+    --gap-col:      9mm;
+    --sidebar-w:    54mm;
+    --h2-gap:       2.6mm;
+  }
+  
+  /* Night: near-black paper, warm light ink, green on hover. */
+  :root[data-theme='dark'] {
+    --ink:          #ece6dc;
+    --ink-soft:     #bfb7ab;
+    --ink-faint:    #8c847a;
+    --rule:         #2f2b27;
+    --paper:        #100e0c;
+    --desk:         #060505;
+    --link-hover:   #3fd884;
+    color-scheme: dark;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    background: var(--desk);
+    font-family: var(--font-body);
+    color: var(--ink);
+    line-height: var(--leading);
+    -webkit-font-smoothing: antialiased;
+  }
+  
+  a { color: inherit; text-decoration: none; transition: color .15s ease; }
+  a:hover { color: var(--link-hover); }
+  
+  .page {
+    width: var(--page-w);
+    min-height: var(--page-h);
+    margin: 12mm auto;
+    padding: var(--margin);
+    background: var(--paper);
+    box-shadow: 0 2px 14px rgba(0,0,0,.12);
+  }
+  
+  /* ---------- masthead ---------- */
+  /* Split like the columns: name, title and sites left; contact right, level with the sites. */
+  .masthead {
+    display: flex;
+    gap: var(--gap-col);
+    align-items: flex-end;
+    padding-bottom: 3mm;
+    margin-bottom: var(--space-section);
+    border-bottom: 1.5px solid var(--rule);
+  }
+  .masthead-main { flex: 1; min-width: 0; }
+  .masthead-side {
+    flex: none;
+    width: var(--sidebar-w);
+    font-size: var(--size-body);
+    color: var(--ink-soft);
+  }
+  .masthead-side p + p { margin-top: 0.3mm; }
+  
+  .masthead h1 {
+    font-family: var(--font-display);
+    font-size: var(--size-name);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.1;
+  }
+  
+  .masthead .title {
+    margin-top: 2mm;
+    font-size: var(--size-title);
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+  .masthead .sites {
+    margin-top: 1.2mm;
+    font-size: var(--size-body);
+  }
+  .masthead .website {
+    color: var(--ink);
+    font-weight: 600;
+    border-bottom: 1px dotted var(--ink-faint);
+  }
+  .masthead .site-note {
+    font-size: var(--size-meta);
+    color: var(--ink-faint);
+    font-style: italic;
+  }
+  .masthead .sites .sep { color: var(--ink-faint); margin: 0 0.6em; }
+  
+  /* ---------- columns ---------- */
+  .columns {
+    display: grid;
+    grid-template-columns: 1fr var(--sidebar-w);
+    gap: var(--gap-col);
+    align-items: start;
+  }
+  
+  section + section { margin-top: var(--space-section); }
+  
+  h2 {
+    font-size: var(--size-section);
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    padding-bottom: 1mm;
+    margin-bottom: var(--h2-gap);
+    border-bottom: 1px solid var(--rule);
+  }
+  
+  /* ---------- entries ---------- */
+  .entry { break-inside: avoid; page-break-inside: avoid; }
+  .entry + .entry { margin-top: var(--space-entry); }
+  
+  .entry-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 4mm;
+  }
+  
+  .entry h3,
+  .edu .school {
+    font-size: var(--size-h3);
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    color: var(--ink);
+    line-height: 1.25;
+  }
+  
+  .entry h3 .org { font-weight: 400; color: var(--ink-soft); }
+  
+  /* Dates and location sit at line-ends, so they must not wrap.
+     .meta is prose and MUST be allowed to wrap — it was previously
+     caught by the same nowrap rule, which could push it off-column. */
+  .dates,
+  .location {
+    font-size: var(--size-meta);
+    color: var(--ink-faint);
+    white-space: nowrap;
+  }
+  
+  .meta {
+    display: block;
+    font-size: var(--size-meta);
+    color: var(--ink-faint);
+    margin-top: 0.4mm;
+  }
+  
+  .body {
+    font-size: var(--size-body);
+    color: var(--ink-soft);
+    margin-top: 1.2mm;
+    orphans: 2;
+    widows: 2;
+  }
+  
+  .link {
+    display: inline-block;
+    font-size: var(--size-meta);
+    color: var(--ink-soft);
+    margin-top: 1mm;
+    border-bottom: 1px dotted var(--ink-faint);
+  }
+  
+  /* ---------- sidebar ---------- */
+  .sidebar { font-size: var(--size-body); color: var(--ink-soft); }
+  .sidebar p { margin-top: 0.6mm; }
+  .sidebar p:first-child { margin-top: 0; }
+  .sidebar .handle { color: var(--ink-faint); }
+  .sidebar .online-link:hover .handle { color: var(--link-hover); }
+  
+  .edu-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 2mm;
+    margin-top: 0.4mm;
+  }
+  
+  .edu .degree {
+    margin-top: 0.6mm;
+    font-weight: 600;
+    font-size: var(--size-body);
+  }
+  .edu .grade { font-weight: 400; color: var(--ink-faint); }
+  
+  .sidebar .tools { line-height: 1.5; color: var(--ink); }
+  .tools .sep { color: var(--ink-faint); margin: 0 0.2em; }
+
+  .lang + .lang { margin-top: 1.8mm; }
+  .lang .level {
+    font-size: var(--size-meta);
+    color: var(--ink-faint);
+    font-style: italic;
+    margin-top: 0.1mm;
+  }
+  
+  /* Day / night switch: on screen only. */
+  .theme-toggle {
+    position: fixed;
+    top: 14px;
+    right: 14px;
+    padding: 6px 12px;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink-soft);
+    font: 600 11px/1 var(--font-body);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .theme-toggle:hover { color: var(--link-hover); border-color: var(--link-hover); }
+
+  /* ============================================================
+     PRINT
+     Margins live on @page, not on .page. That way if the content
+     ever does spill onto a second sheet, page 2 still gets proper
+     top and bottom margins instead of running to the paper edge.
+     ============================================================ */
+  @page {
+    size: A4;
+    margin: 15mm 15mm 14mm;
+  }
+  
+  @media print {
+    /* The paper colour fills the sheet, margins too (night prints dark edge to edge). */
+    html, body { background: var(--paper); }
+    .theme-toggle { display: none; }
+  
+    .page {
+      width: auto;
+      min-height: 0;
+      margin: 0;
+      padding: 0;
+      box-shadow: none;
+      background: none;
+    }
+  
+    a { color: inherit !important; }
+  
+    h2 { break-after: avoid; page-break-after: avoid; }
+    section { break-inside: avoid; page-break-inside: avoid; }
+    .entry, .edu, .lang { break-inside: avoid; page-break-inside: avoid; }
+  
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
