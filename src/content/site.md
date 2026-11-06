@@ -9,7 +9,7 @@ description: Personal portfolio of agnifico. A floating island world representin
 invite: Click around to know more about me.
 inviteNote: Anything that glows opens.
 # The live address, once there is one (used for canonical links). Leave empty until then.
-url: ''
+url: https://agnifico.vercel.app
 # The body below is the hero: the first line is its lead, the lines after it the second part.
 # **bold** and ==highlight== work anywhere in content.
 ---
